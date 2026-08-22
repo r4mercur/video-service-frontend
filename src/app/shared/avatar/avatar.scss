@@ -1,0 +1,17 @@
+:host {
+  display: contents;
+}
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #3a3358, #26213f);
+  color: #cdc7e8;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}

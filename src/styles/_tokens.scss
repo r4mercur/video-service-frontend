@@ -1,0 +1,83 @@
+// Design Tokens als CSS Custom Properties (nicht SCSS-Variablen), damit
+// Runtime-Theming über [data-theme] + prefers-color-scheme ohne zweiten Build funktioniert.
+//
+// Quelle: Streambox-Mockups (claude.ai/design). Aktuell nur Dark, da kein Light-Mockup
+// vorliegt. Sobald ein Light-Design existiert, kommt ein zweiter Block unter
+// [data-theme="light"] bzw. @media (prefers-color-scheme: light) dazu.
+
+:root {
+  color-scheme: dark;
+
+  // Surfaces
+  --color-bg: #050509;
+  --color-surface: #0d0c14;
+  --color-surface-raised: #12111c;
+  --color-overlay-soft: rgb(255 255 255 / 3.5%);
+  --color-overlay-medium: rgb(255 255 255 / 5%);
+  --color-overlay-strong: rgb(255 255 255 / 11%);
+  --color-border: rgb(255 255 255 / 8%);
+  --color-border-subtle: rgb(255 255 255 / 7%);
+  --gradient-hero: radial-gradient(900px 460px at 50% -12%, #1d1740 0%, var(--color-bg) 62%);
+
+  // Text
+  --color-text-primary: #eceaf5;
+  --color-text-heading: #f6f4ff;
+  --color-text-secondary: #8a86a6;
+  --color-text-muted: #6f6b8c;
+  --color-text-faint: #5c5878;
+
+  // Brand / accent
+  --color-accent: #8b5cf6;
+  --color-accent-strong: #6d3ff5;
+  --color-accent-soft: rgb(139 92 246 / 16%);
+  --color-accent-border: rgb(139 92 246 / 26%);
+  --color-accent-text: #c3b4ff;
+  --color-link: #b6a6ff;
+  --color-link-hover: #d6cdff;
+  --color-on-accent: #120d24;
+  --gradient-accent: linear-gradient(150deg, #a78bfa, var(--color-accent-strong));
+
+  // Danger / error
+  --color-danger: #f87171;
+  --color-danger-bg: rgb(248 113 113 / 11%);
+  --color-danger-border: rgb(248 113 113 / 35%);
+  --color-danger-text: #fca5a5;
+
+  // Typography
+  --font-heading: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, Menlo, monospace;
+
+  --text-xs: 0.6875rem; // 11px
+  --text-sm: 0.75rem; // 12px
+  --text-base: 0.875rem; // 14px
+  --text-md: 0.9375rem; // 15px
+  --text-lg: 1rem; // 16px
+  --text-xl: 1.125rem; // 18px
+  --text-2xl: 1.375rem; // 22px
+  --text-3xl: 1.875rem; // 30px
+  --text-4xl: 2rem; // 32px
+
+  // Spacing scale
+  --space-1: 0.25rem; // 4px
+  --space-2: 0.5rem; // 8px
+  --space-3: 0.75rem; // 12px
+  --space-4: 1rem; // 16px
+  --space-5: 1.25rem; // 20px
+  --space-6: 1.5rem; // 24px
+  --space-7: 2rem; // 32px
+  --space-8: 2.5rem; // 40px
+  --space-9: 3rem; // 48px
+
+  // Radii
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  // Shadows
+  --shadow-raised: 0 10px 26px rgb(124 60 245 / 34%);
+  --shadow-card: 0 24px 60px rgb(0 0 0 / 50%);
+}

@@ -17,13 +17,13 @@ Diese Datei ist die verbindliche Arbeitsgrundlage für alle Änderungen in diese
 
 Video-Plattform zum Hochladen und Abspielen beliebiger Videos.
 
-| Ebene | Technologie |
-|---|---|
-| Frontend | Angular 22 (dieses Repository) |
-| Backend | Spring Boot |
-| Cache | Redis |
-| Object Storage | S3-kompatibel, selbst gehostet (Open Source, z. B. MinIO/Garage) |
-| Ziel-Infrastruktur | Hetzner Cloud |
+| Ebene              | Technologie                                                      |
+| ------------------ | ---------------------------------------------------------------- |
+| Frontend           | Angular 22 (dieses Repository)                                   |
+| Backend            | Spring Boot                                                      |
+| Cache              | Redis                                                            |
+| Object Storage     | S3-kompatibel, selbst gehostet (Open Source, z. B. MinIO/Garage) |
+| Ziel-Infrastruktur | Hetzner Cloud                                                    |
 
 ---
 
@@ -44,16 +44,20 @@ Diese Versionen sind gesetzt und dürfen nicht ohne Rücksprache angehoben werde
 ## 4. Architekturentscheidungen (getroffen, nicht neu aufrollen)
 
 ### 4.1 Deployment: Static SPA, SSR-fähig geschrieben
+
 Produktion liefert ein statisches Bundle über Nginx/Caddy aus (SPA-Fallback auf `index.html`).
 **Aber:** Der Code muss jederzeit SSR-fähig bleiben, damit später ohne Refactor auf Angular SSR gewechselt werden kann. Siehe harte Regeln in Abschnitt 6.
 
 ### 4.2 Styling: reines SCSS, kein UI-Framework
+
 Kein Angular Material, kein PrimeNG, kein Tailwind. Eigene Designs, eigenes Design-System.
-**Ausnahme/Empfehlung:** Angular Aria darf für barrierefreies Verhalten interaktiver Komponenten (Dropdown, Dialog, Combobox, Slider, Tabs) genutzt werden. Aria liefert nur Verhalten, kein CSS — die Optik bleibt zu 100 % selbst gebaut. *(Noch final zu bestätigen.)*
+**Ausnahme/Empfehlung:** Angular Aria darf für barrierefreies Verhalten interaktiver Komponenten (Dropdown, Dialog, Combobox, Slider, Tabs) genutzt werden. Aria liefert nur Verhalten, kein CSS — die Optik bleibt zu 100 % selbst gebaut. _(Noch final zu bestätigen.)_
 
 ### 4.3 Upload: über das Spring-Boot-Backend
+
 Aktuelle Entscheidung: Bytes fließen durch das Backend.
 **Zwingende Auflagen dabei:**
+
 - Upload immer **chunked** mit `Content-Range`, niemals ein einzelner großer POST
 - Client-seitiges Resume nach Verbindungsabbruch muss möglich sein
 - Der Upload-Client wird hinter ein `UploadTransport`-Interface gelegt, damit später ohne UI-Änderung auf presigned Direct-Upload umgestellt werden kann
@@ -61,11 +65,13 @@ Aktuelle Entscheidung: Bytes fließen durch das Backend.
 **Offene Empfehlung:** Backend als Kontrollinstanz (Auth, Quota, Multipart-Session, presigned Part-URLs, Complete-Bestätigung), Bytes direkt zum Object Store. Spart Traffic-Verdopplung und macht Backend-Deployments unabhängig von laufenden Uploads.
 
 ### 4.4 i18n: Angular natives i18n, vorerst nur Englisch
+
 UI-Sprache ist Englisch. Es wird **kein** Runtime-i18n (Transloco o. ä.) eingesetzt.
 **Trotzdem gilt ab sofort:** Alle Texte werden mit `i18n`-Attribut bzw. `$localize` markiert, auch wenn nur `en` extrahiert wird. Nachrüsten weiterer Sprachen muss ohne Anfassen von Templates möglich sein.
 Formatierungen (Dauer, Aufrufzahlen, relative Zeitangaben) immer über `Intl` bzw. Angular-Pipes, nie selbst gebaut.
 
 ### 4.5 Playback
+
 HLS. Nativ auf Safari/iOS, sonst über `hls.js`. Player-Library ist noch offen (Kandidaten: Vidstack, Shaka).
 
 ---
@@ -127,11 +133,11 @@ Diese vier Regeln sind nicht verhandelbar, sie sind die Versicherung für einen 
 
 ## 8. Testing
 
-| Ebene | Werkzeug | Gilt für |
-|---|---|---|
-| Unit | Vitest + jsdom | Services, Pipes, reine Logik, Signal-Berechnungen |
-| Component | Vitest + Angular TestBed | Komponenten ohne Media-APIs |
-| E2E | Playwright (Chromium + WebKit) | Happy Paths, Upload-Flow, **alles rund um den Player** |
+| Ebene     | Werkzeug                       | Gilt für                                               |
+| --------- | ------------------------------ | ------------------------------------------------------ |
+| Unit      | Vitest + jsdom                 | Services, Pipes, reine Logik, Signal-Berechnungen      |
+| Component | Vitest + Angular TestBed       | Komponenten ohne Media-APIs                            |
+| E2E       | Playwright (Chromium + WebKit) | Happy Paths, Upload-Flow, **alles rund um den Player** |
 
 **Wichtig:** jsdom unterstützt weder `<video>` noch MSE. Player-Verhalten wird ausschließlich in Playwright getestet. WebKit ist Pflicht, weil Safari HLS nativ abspielt und sich anders verhält als Chromium.
 
@@ -161,18 +167,18 @@ Diese vier Regeln sind nicht verhandelbar, sie sind die Versicherung für einen 
 
 ## 11. Arbeitspakete
 
-| # | Paket | Aufwand | Status |
-|---|---|---|---|
-| AP 0 | Toolchain & Repo-Hygiene | 1–1,5 PT | spezifiziert, nicht umgesetzt |
-| AP 1 | App-Shell, Routing, Design-Tokens | 2–3 PT | blockiert (Designs fehlen) |
-| AP 2 | Core-Infrastruktur (Config, Interceptors, Fehler) | 2 PT | offen |
-| AP 3 | Auth (Login, Refresh, Guards, Rollen) | 3 PT | offen |
-| AP 4 | Katalog (Grid, Suche, Filter, Detailseite) | 4–5 PT | offen, braucht API-Contract |
-| AP 5 | Player (HLS, Qualität, Untertitel, a11y) | 4 PT | offen |
-| AP 6 | Upload (Chunking, Progress, Resume, Metadaten) | 5 PT | offen |
-| AP 7 | Studio (eigene Videos verwalten) | 3 PT | offen |
-| AP 8 | Qualität (Tests, a11y, Performance) | 3 PT | offen |
-| AP 9 | Build & Deployment (Docker, Nginx, CSP, Cache) | 2 PT | offen |
+| #    | Paket                                                                                                                               | Aufwand  | Status                                                                                                                             |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| AP 0 | Toolchain & Repo-Hygiene (ohne Playwright-Grundgerüst und CI-Workflow, siehe AP 5/6 bzw. AP 9)                                      | 1–1,5 PT | umgesetzt                                                                                                                          |
+| AP 1 | App-Shell, Routing, Design-Tokens                                                                                                   | 2–3 PT   | umgesetzt                                                                                                                          |
+| AP 2 | Core-Infrastruktur (Config, Interceptors, Fehler)                                                                                   | 2 PT     | umgesetzt                                                                                                                          |
+| AP 3 | Auth (Login, Refresh, Guards, Rollen)                                                                                               | 3 PT     | UI-Shell umgesetzt (Login/Signup-Card, Signal-Forms-Validierung); echte Anbindung offen (Auth-Verfahren ungeklärt)                 |
+| AP 4 | Katalog (Liste statt Grid, Detailseite)                                                                                             | 4–5 PT   | UI-Shell umgesetzt (Overview-Liste, Pagination, Empty State, Detailseite); Datenanbindung/Suche/Filter offen, braucht API-Contract |
+| AP 5 | Player (HLS, Qualität, Untertitel, a11y) — inkl. Playwright-Grundgerüst (Chromium+WebKit), falls nicht schon in AP 6 angelegt       | 4 PT     | Player-Frame-Shell (Standbild) umgesetzt; echtes HLS/hls.js offen (Player-Library ungeklärt)                                       |
+| AP 6 | Upload (Chunking, Progress, Resume, Metadaten) — inkl. Playwright-Grundgerüst (Chromium+WebKit), falls nicht schon in AP 5 angelegt | 5 PT     | offen                                                                                                                              |
+| AP 7 | Studio (eigene Videos verwalten)                                                                                                    | 3 PT     | offen                                                                                                                              |
+| AP 8 | Qualität (Tests, a11y, Performance)                                                                                                 | 3 PT     | offen                                                                                                                              |
+| AP 9 | Build & Deployment (Docker, Nginx, CSP, Cache) — inkl. GitHub-Actions-CI-Workflow (`npm ci → lint → test → build → e2e`)            | 2 PT     | offen                                                                                                                              |
 
 **Gesamt MVP: ca. 29–31 PT.** AP 0–2 sind Voraussetzung für alles Weitere. AP 4–7 sind parallelisierbar, sobald die API-Contracts stehen.
 
@@ -180,9 +186,10 @@ Diese vier Regeln sind nicht verhandelbar, sie sind die Versicherung für einen 
 
 ## 12. Offene Punkte
 
-- [ ] **Designs liegen noch nicht vor** — blockiert das Token-Set in AP 1
+- [ ] Kein Light-Theme-Mockup vorhanden — Tokens sind theme-fähig gebaut, aber nur Dark ist befüllt
 - [ ] Angular Aria für a11y-Verhalten: ja oder nein? (bei nein: +4 PT für eigene Primitives)
-- [ ] Auth-Verfahren: eigenes JWT vs. Keycloak/Authentik — gemeinsam mit dem Backend zu entscheiden
+- [x] Auth-Verfahren: eigenes JWT (Access-Token im Body, Refresh via httpOnly-Cookie `refresh_token`), kein Keycloak. Quelle: `GET /v3/api-docs` vom lokalen Backend (`localhost:8080`), 2026-08-22.
 - [ ] Player-Library: Vidstack vs. Shaka
-- [ ] OpenAPI-Spec des Backends — Voraussetzung für AP 4
-- [ ] Upload-Variante final: durchs Backend vs. presigned Direct-Upload
+- [x] OpenAPI-Spec des Backends liegt vor: `http://localhost:8080/v3/api-docs` (Swagger UI unter `/swagger-ui/index.html`). Codegen via `openapi-typescript` wird mit AP 2 eingerichtet.
+- [x] Upload-Variante: presigned Direct-Upload bestätigt (`POST /api/videos` liefert Part-URLs, `POST /api/videos/{id}/complete` schließt ab)
+- [ ] Katalog-Feed paginiert serverseitig über `cursor`/`nextCursor`, nicht über Seitenzahlen — die in AP 1 gebaute Pagination-Komponente (Seitenzahlen + Jump-to-Page, nach Mockup) passt nicht zur echten API. Entschieden: Wird in AP 4 auf ein Cursor-/Load-more-Pattern umgestellt; weicht vom Mockup ab.

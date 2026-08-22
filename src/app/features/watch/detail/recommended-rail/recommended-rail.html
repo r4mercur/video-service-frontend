@@ -1,0 +1,18 @@
+<section class="recommended">
+  <div class="recommended__header">
+    <span class="recommended__eyebrow">Recommended for you</span>
+    <a routerLink="/catalog">Back to latest uploads</a>
+  </div>
+  <div class="recommended__grid">
+    @for (item of items(); track item.id) {
+      <a class="recommended__card" [routerLink]="['/watch', item.id]">
+        <div class="recommended__thumb">
+          <span>THUMBNAIL</span>
+          <span class="recommended__duration">{{ item.durationSeconds | appDuration }}</span>
+        </div>
+        <h3>{{ item.title }}</h3>
+        <span class="recommended__sub">{{ item.sub }}</span>
+      </a>
+    }
+  </div>
+</section>

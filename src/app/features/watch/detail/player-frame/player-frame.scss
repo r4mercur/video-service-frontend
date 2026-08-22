@@ -1,0 +1,91 @@
+@use 'mixins' as *;
+
+.player {
+  position: relative;
+  height: 16rem;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: repeating-linear-gradient(135deg, #151122 0 12px, #1a1530 12px 24px);
+  border: 1px solid var(--color-border-subtle);
+
+  @include respond-up(lg) {
+    height: 29.5rem;
+  }
+}
+
+.player__label {
+  position: absolute;
+  left: var(--space-5);
+  top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: #5f5885;
+  letter-spacing: 0.14em;
+}
+
+.player__play-button {
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-raised);
+
+  @include respond-up(lg) {
+    width: 4.75rem;
+    height: 4.75rem;
+  }
+}
+
+.player__play-icon {
+  width: 0;
+  height: 0;
+  border-left: 0.875rem solid var(--color-on-accent);
+  border-top: 0.5rem solid transparent;
+  border-bottom: 0.5rem solid transparent;
+  margin-left: 0.3125rem;
+}
+
+.player__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--space-4) var(--space-5);
+  background: linear-gradient(180deg, rgb(10 8 18 / 0%), rgb(10 8 18 / 90%));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.player__track {
+  height: 0.3125rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-overlay-strong);
+}
+
+.player__fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.player__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: #cdc7e8;
+}
+
+.player__actions {
+  display: flex;
+  gap: var(--space-5);
+}

@@ -1,0 +1,122 @@
+<main class="auth">
+  <div class="auth__panel">
+    <div class="auth__brand">
+      <span class="auth__mark">S</span>
+      <span class="auth__wordmark">Streambox</span>
+    </div>
+
+    <div class="auth__card">
+      <div class="auth__tabs">
+        <button
+          type="button"
+          class="auth__tab"
+          [class.auth__tab--active]="mode() === 'login'"
+          [attr.aria-pressed]="mode() === 'login'"
+          (click)="switchMode('login')"
+        >
+          Log in
+        </button>
+        <button
+          type="button"
+          class="auth__tab"
+          [class.auth__tab--active]="mode() === 'signup'"
+          [attr.aria-pressed]="mode() === 'signup'"
+          (click)="switchMode('signup')"
+        >
+          Sign up
+        </button>
+      </div>
+
+      @if (serverError(); as message) {
+        <p class="auth__error" role="alert">{{ message }}</p>
+      }
+
+      @if (mode() === 'login') {
+        <form class="auth__form" (submit)="onSubmitLogin($event)" novalidate>
+          <div class="auth__field">
+            <label for="identifier">Email or username</label>
+            <input
+              id="identifier"
+              type="text"
+              autocomplete="username"
+              [formField]="loginForm.identifier"
+            />
+            @if (loginForm.identifier().touched() && loginForm.identifier().invalid()) {
+              <span class="auth__field-error">{{
+                loginForm.identifier().errors()[0]?.message
+              }}</span>
+            }
+          </div>
+
+          <div class="auth__field">
+            <label for="login-password">Password</label>
+            <input
+              id="login-password"
+              type="password"
+              autocomplete="current-password"
+              [formField]="loginForm.password"
+            />
+            @if (loginForm.password().touched() && loginForm.password().invalid()) {
+              <span class="auth__field-error">{{ loginForm.password().errors()[0]?.message }}</span>
+            }
+          </div>
+
+          <app-button type="submit" size="md" [disabled]="submitting()">
+            {{ submitting() ? 'Logging in…' : 'Log in' }}
+          </app-button>
+
+          <span class="auth__forgot">Forgot your password?</span>
+        </form>
+      } @else {
+        <form class="auth__form" (submit)="onSubmitSignup($event)" novalidate>
+          <div class="auth__field">
+            <label for="signup-email">Email</label>
+            <input
+              id="signup-email"
+              type="email"
+              autocomplete="email"
+              [formField]="signupForm.email"
+            />
+            @if (signupForm.email().touched() && signupForm.email().invalid()) {
+              <span class="auth__field-error">{{ signupForm.email().errors()[0]?.message }}</span>
+            }
+          </div>
+
+          <div class="auth__field">
+            <label for="signup-username">Username</label>
+            <input
+              id="signup-username"
+              type="text"
+              autocomplete="username"
+              [formField]="signupForm.username"
+            />
+            @if (signupForm.username().touched() && signupForm.username().invalid()) {
+              <span class="auth__field-error">{{
+                signupForm.username().errors()[0]?.message
+              }}</span>
+            }
+          </div>
+
+          <div class="auth__field">
+            <label for="signup-password">Password</label>
+            <input
+              id="signup-password"
+              type="password"
+              autocomplete="new-password"
+              [formField]="signupForm.password"
+            />
+            @if (signupForm.password().touched() && signupForm.password().invalid()) {
+              <span class="auth__field-error">{{
+                signupForm.password().errors()[0]?.message
+              }}</span>
+            }
+          </div>
+
+          <app-button type="submit" size="md" [disabled]="submitting()">
+            {{ submitting() ? 'Creating account…' : 'Create account' }}
+          </app-button>
+        </form>
+      }
+    </div>
+  </div>
+</main>

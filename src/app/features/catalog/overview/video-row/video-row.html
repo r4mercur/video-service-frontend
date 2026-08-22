@@ -1,0 +1,24 @@
+<article class="video-row">
+  <div class="video-row__thumb">
+    <span class="video-row__thumb-label">THUMBNAIL</span>
+    <span class="video-row__duration">{{ video().durationSeconds | appDuration }}</span>
+    @if (video().progress > 0) {
+      <div class="video-row__progress-track">
+        <div class="video-row__progress-fill" [style.width.%]="video().progress"></div>
+      </div>
+    }
+  </div>
+
+  <div class="video-row__body">
+    <h2 class="video-row__title">{{ video().title }}</h2>
+    <div class="video-row__meta">
+      <app-tag variant="badge">{{ video().genre }}</app-tag>
+      <span class="video-row__sub">
+        {{ video().uploadedAt | appRelativeTime }} · {{ video().views | appCompactNumber }} views
+      </span>
+    </div>
+    <span class="video-row__progress-label">{{ progressLabel() }}</span>
+  </div>
+
+  <a class="video-row__watch" [routerLink]="['/watch', video().id]">Watch</a>
+</article>

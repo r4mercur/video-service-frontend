@@ -1,0 +1,32 @@
+<main class="overview">
+  <div class="overview__intro">
+    <span class="overview__eyebrow">New this week</span>
+    <h1 class="overview__heading">Latest uploads</h1>
+    <p class="overview__count">Showing 1–{{ videos().length }} of {{ totalCount() }} titles.</p>
+  </div>
+
+  @if (videos().length > 0) {
+    <div class="overview__list">
+      @for (video of videos(); track video.id) {
+        <app-video-row [video]="video" />
+      }
+    </div>
+
+    <app-pagination
+      class="overview__pagination"
+      [currentPage]="currentPage()"
+      [totalPages]="totalPages()"
+      (pageChange)="onPageChange($event)"
+    />
+  } @else {
+    <div class="overview__empty">
+      <div class="overview__empty-icon"></div>
+      <h2>Nothing here yet</h2>
+      <p>
+        No videos have been uploaded to this library. Upload your first one and it will appear at
+        the top of this list.
+      </p>
+      <a class="overview__empty-cta" routerLink="/upload">Upload a video</a>
+    </div>
+  }
+</main>

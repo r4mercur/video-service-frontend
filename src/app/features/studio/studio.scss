@@ -1,0 +1,13 @@
+.placeholder {
+  max-width: 76.25rem;
+  margin: 0 auto;
+  padding: var(--space-9) var(--space-6);
+  font-family: var(--font-body);
+  color: var(--color-text-secondary);
+
+  h1 {
+    font-family: var(--font-heading);
+    color: var(--color-text-heading);
+    margin-bottom: var(--space-2);
+  }
+}

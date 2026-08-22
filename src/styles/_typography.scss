@@ -1,0 +1,16 @@
+// Typography-Grundgerüst.
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    margin: 0;
+  }
+}

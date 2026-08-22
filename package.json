@@ -6,10 +6,25 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "generate:api": "openapi-typescript http://localhost:8080/v3/api-docs -o src/app/core/api/schema.ts",
+    "prepare": "husky"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
+  "engines": {
+    "node": ">=24.19.0 <25.0.0",
+    "npm": ">=11.17.0"
+  },
+  "lint-staged": {
+    "*.{ts,html}": "eslint --fix",
+    "*.{ts,html,scss,json,md}": "prettier --write"
+  },
   "dependencies": {
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",
@@ -24,9 +39,16 @@
     "@angular/build": "^22.1.5",
     "@angular/cli": "^22.1.5",
     "@angular/compiler-cli": "^22.1.0",
+    "@eslint/js": "^9.39.5",
+    "angular-eslint": "^22.1.0",
+    "eslint": "^9.39.5",
+    "husky": "^9.1.7",
     "jsdom": "^28.0.0",
+    "lint-staged": "^17.3.0",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^4.0.8"
   }
 }

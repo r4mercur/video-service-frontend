@@ -1,0 +1,2 @@
+# Generiert via `npm run generate:api` — behält die Formatierung von openapi-typescript.
+src/app/core/api/schema.ts

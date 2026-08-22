@@ -1,0 +1,54 @@
+<nav class="pagination" aria-label="Pagination">
+  <div class="pagination__pages">
+    <button
+      type="button"
+      class="pagination__step"
+      [disabled]="currentPage() === 1"
+      (click)="goTo(currentPage() - 1)"
+    >
+      Prev
+    </button>
+
+    @for (item of pageItems(); track $index) {
+      @if (item === 'ellipsis') {
+        <span class="pagination__ellipsis">&hellip;</span>
+      } @else {
+        <button
+          type="button"
+          class="pagination__page"
+          [class.pagination__page--active]="item === currentPage()"
+          [attr.aria-current]="item === currentPage() ? 'page' : null"
+          (click)="goTo(item)"
+        >
+          {{ item }}
+        </button>
+      }
+    }
+
+    <button
+      type="button"
+      class="pagination__step"
+      [disabled]="currentPage() === totalPages()"
+      (click)="goTo(currentPage() + 1)"
+    >
+      Next
+    </button>
+  </div>
+
+  <div class="pagination__jump">
+    <label for="jump-to-page">Jump to page</label>
+    <input
+      id="jump-to-page"
+      type="number"
+      class="pagination__jump-input"
+      min="1"
+      [max]="totalPages()"
+      [value]="jumpValue()"
+      #jumpInput
+      (input)="jumpValue.set(jumpInput.value)"
+      (keydown.enter)="jump()"
+    />
+    <app-button size="sm" (click)="jump()">Go</app-button>
+    <span class="pagination__jump-total">of {{ totalPages() }}</span>
+  </div>
+</nav>

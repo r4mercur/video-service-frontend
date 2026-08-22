@@ -1,0 +1,119 @@
+@use 'mixins' as *;
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 76.25rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-9);
+}
+
+.detail__player-placeholder,
+.detail__recommended-placeholder {
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  min-height: 16rem;
+
+  @include respond-up(lg) {
+    min-height: 29.5rem;
+  }
+}
+
+.detail__recommended-placeholder {
+  min-height: 12rem;
+}
+
+.detail__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+
+  @include respond-up(lg) {
+    display: grid;
+    grid-template-columns: 1fr 18.75rem;
+    gap: var(--space-8);
+    align-items: start;
+  }
+}
+
+.detail__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detail__title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-3xl);
+  letter-spacing: -0.02em;
+  color: var(--color-text-heading);
+}
+
+.detail__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.detail__dot {
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
+  background: #3c3857;
+}
+
+.detail__description {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-lg);
+  line-height: 1.65;
+  color: #b8b4cf;
+  max-width: 64ch;
+  text-wrap: pretty;
+}
+
+.detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.detail__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-overlay-soft);
+  border: 1px solid var(--color-overlay-medium);
+}
+
+.detail__details-eyebrow {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-link);
+}
+
+.detail__details-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+
+  span:first-child {
+    color: var(--color-text-secondary);
+  }
+
+  span:last-child {
+    color: var(--color-text-primary);
+  }
+}
