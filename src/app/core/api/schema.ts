@@ -574,6 +574,9 @@ export interface components {
             /** @enum {string} */
             status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
             lastError?: string;
+            /** Format: int32 */
+            progressPercent?: number;
+            currentStep?: string;
         };
         ManifestResponse: {
             playlistUrl?: string;

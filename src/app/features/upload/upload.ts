@@ -64,6 +64,8 @@ export class Upload {
   protected readonly uploadError = signal<string | null>(null);
 
   protected readonly processingFailed = signal<string | null>(null);
+  protected readonly processingPercent = signal(0);
+  protected readonly currentStep = signal<string | null>(null);
 
   constructor() {
     const pending = this.sessionStore.load();
@@ -290,6 +292,11 @@ export class Upload {
     const poll = async () => {
       try {
         const response = await this.transport.status(videoId);
+        // progressPercent ist eine Pixelzahl-gewichtete Schätzung des Transcode-Workers über
+        // die Pipeline-Stufen, kein Byte-Zähler — deshalb zeigt die UI dazu keine MB-Werte.
+        this.processingPercent.set(response.progressPercent ?? 0);
+        this.currentStep.set(response.currentStep ?? null);
+
         if (response.status === 'READY') {
           this.stage.set('done');
           return;
@@ -351,6 +358,8 @@ export class Upload {
     this.uploadError.set(null);
     this.metadataError.set(null);
     this.processingFailed.set(null);
+    this.processingPercent.set(0);
+    this.currentStep.set(null);
     this.stage.set('empty');
   }
 

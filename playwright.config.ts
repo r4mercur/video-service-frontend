@@ -10,6 +10,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
+  // Concurrent /api/auth/register-Aufrufe (z. B. Chromium- und WebKit-Projekt gleichzeitig)
+  // haben sich gegen das lokale Backend als fehleranfällig gezeigt — global auf 1 Worker
+  // begrenzen, damit sich Registrierungen nie überlappen. `--workers=N` überschreibt das bei Bedarf.
+  workers: 1,
+  // Der Upload-Flow braucht mehrere Status-Polls (5s-Intervall) plus mehrere `toPass`-Retries
+  // beim Formular-Tippen — der Playwright-Default von 30s ist dafür zu knapp bemessen.
+  timeout: 60_000,
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:4200',

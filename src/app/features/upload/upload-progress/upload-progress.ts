@@ -26,14 +26,26 @@ export class UploadProgress {
   readonly step = input.required<UploadStep>();
   readonly errorMessage = input<string | null>(null);
 
+  /**
+   * Prozentsatz vom Transcode-Worker (Pixelzahl-gewichtete Schätzung über die Pipeline-Stufen,
+   * kein Byte-Zähler) — deshalb während "processing" keine MB-Anzeige, nur der Balken.
+   */
+  readonly processingPercent = input<number | null>(null);
+  readonly currentStep = input<string | null>(null);
+
   readonly pauseToggle = output<void>();
   readonly cancelRequested = output<void>();
 
-  protected readonly percent = computed(() =>
-    this.totalBytes() > 0
+  protected readonly isProcessing = computed(() => this.step() === 'processing');
+
+  protected readonly percent = computed(() => {
+    if (this.isProcessing()) {
+      return Math.min(100, Math.max(0, this.processingPercent() ?? 0));
+    }
+    return this.totalBytes() > 0
       ? Math.min(100, Math.round((this.loadedBytes() / this.totalBytes()) * 100))
-      : 0,
-  );
+      : 0;
+  });
 
   protected readonly remainingSeconds = computed(() => {
     const remaining = this.totalBytes() - this.loadedBytes();
@@ -63,7 +75,7 @@ export class UploadProgress {
           current === 'transferring'
             ? 'Waiting for the transfer'
             : current === 'processing'
-              ? 'Converting your video'
+              ? (this.currentStep() ?? 'Converting your video')
               : current === 'failed'
                 ? 'Failed'
                 : 'Done',

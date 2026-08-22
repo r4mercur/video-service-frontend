@@ -29,9 +29,13 @@
       </div>
       <div class="upload-progress__percent">
         <span class="upload-progress__percent-value">{{ percent() }}%</span>
-        <span class="upload-progress__percent-detail">
-          {{ loadedBytes() | appFileSize }} of {{ totalBytes() | appFileSize }}
-        </span>
+        @if (!isProcessing()) {
+          <span class="upload-progress__percent-detail">
+            {{ loadedBytes() | appFileSize }} of {{ totalBytes() | appFileSize }}
+          </span>
+        } @else if (currentStep(); as note) {
+          <span class="upload-progress__percent-detail">{{ note }}</span>
+        }
       </div>
     </div>
 
@@ -41,7 +45,9 @@
       </div>
       <div class="upload-progress__bar-footer">
         <span>
-          @if (paused()) {
+          @if (isProcessing()) {
+            {{ currentStep() ?? 'Converting your video…' }}
+          } @else if (paused()) {
             Paused
           } @else {
             {{ speedBytesPerSecond() | appFileSize }}/s

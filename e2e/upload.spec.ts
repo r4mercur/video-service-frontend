@@ -110,23 +110,18 @@ async function mockUploadBackend(page: Page): Promise<void> {
   });
 }
 
-// Ein Test-User für die ganze Suite statt einer Registrierung pro Test — das lokale Backend
-// begrenzt Registrierungen pro Zeitfenster, und beide Szenarien teilen sich ohnehin denselben
-// Mock-Setup.
-test.describe.serial('Upload', () => {
-  let page: Page;
+// Serial statt parallel: zwei gleichzeitige Registrierungen haben sich gegen das lokale Backend
+// als fehleranfällig gezeigt (transientes "Something went wrong" statt Erfolg). Ein geteilter
+// `storageState`/Shared-Page-Ansatz wurde verworfen — WebKit repliziert den httpOnly-Refresh-
+// Cookie aus `storageState` auf `http://localhost` nicht zuverlässig wie Chromium, jeder Test
+// registriert sich hier deshalb selbst.
+test.describe.configure({ mode: 'serial' });
 
-  test.beforeAll(async ({ browser }) => {
-    page = await browser.newPage();
+test.describe('Upload', () => {
+  test('drop zone → metadata → transfer → published', async ({ page }) => {
     await mockUploadBackend(page);
     await signUp(page, uniqueUser());
-  });
 
-  test.afterAll(async () => {
-    await page.close();
-  });
-
-  test('drop zone → metadata → transfer → published', async () => {
     await page.getByRole('link', { name: 'Upload', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Add a video' })).toBeVisible();
 
@@ -142,16 +137,23 @@ test.describe.serial('Upload', () => {
     await page.getByRole('option', { name: 'Drama' }).click();
     await page.getByRole('button', { name: 'Start upload' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Uploading 1 video' })).toBeVisible({
+    await expect(page.getByRole('heading', { level: 1, name: 'Uploading 1 video' })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByText('100%')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByRole('heading', { name: 'Your video is live' })).toBeVisible({
+    // Mocked parts resolve near-instantly, so the transferring 100% can flash by in a single
+    // frame — the reliable checkpoint is the h1 switching to the processing-stage heading.
+    await expect(page.getByRole('heading', { level: 1, name: 'clip.mp4' })).toBeVisible({
       timeout: 15_000,
+    });
+    await expect(page.getByRole('heading', { name: 'Your video is live' })).toBeVisible({
+      timeout: 20_000,
     });
   });
 
-  test('rejects a file with the wrong type', async () => {
+  test('rejects a file with the wrong type', async ({ page }) => {
+    await mockUploadBackend(page);
+    await signUp(page, uniqueUser());
+
     await page.getByRole('link', { name: 'Upload', exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({
       name: 'notes.txt',
