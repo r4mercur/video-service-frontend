@@ -1,0 +1,85 @@
+<main class="upload">
+  @switch (stage()) {
+    @case ('empty') {
+      @if (pendingResumeSession(); as pending) {
+        <div class="upload__resume-banner" role="status">
+          <p>
+            You have an unfinished upload of <strong>{{ pending.fileName }}</strong> ({{
+              resumePercent(pending)
+            }}% done). Choose the same file again to resume, or discard it.
+          </p>
+          <button type="button" (click)="discardResumeSession()">Discard</button>
+        </div>
+      }
+
+      <div class="upload__intro">
+        <span class="upload__eyebrow">Upload</span>
+        <h1 class="upload__heading">Add a video</h1>
+        <p class="upload__hint">
+          Drop a file here or choose one from your computer. MP4, MOV or WebM, up to 8 GB.
+        </p>
+      </div>
+
+      @if (dropError(); as message) {
+        <p class="upload__error" role="alert">{{ message }}</p>
+      }
+
+      <app-drop-zone (fileSelected)="onFileSelected($event)" (rejected)="dropError.set($event)" />
+    }
+
+    @case ('metadata') {
+      @if (pendingFile(); as file) {
+        <app-metadata-form
+          [fileName]="file.name"
+          [submitting]="submittingMetadata()"
+          (submitted)="onMetadataSubmitted($event)"
+        />
+      }
+      @if (metadataError(); as message) {
+        <p class="upload__error" role="alert">{{ message }}</p>
+      }
+      <button type="button" class="upload__back" (click)="uploadAnother()">
+        Choose a different file
+      </button>
+    }
+
+    @case ('uploading') {
+      <app-upload-progress
+        [fileName]="uploadFileName()"
+        [totalBytes]="uploadTotalBytes()"
+        [loadedBytes]="loadedBytes()"
+        [speedBytesPerSecond]="speedBytesPerSecond()"
+        [paused]="paused()"
+        step="transferring"
+        [errorMessage]="uploadError()"
+        (pauseToggle)="togglePause()"
+        (cancelRequested)="cancelUpload()"
+      />
+    }
+
+    @case ('processing') {
+      <app-upload-progress
+        [fileName]="uploadFileName()"
+        [totalBytes]="uploadTotalBytes()"
+        [loadedBytes]="uploadTotalBytes()"
+        step="processing"
+      />
+    }
+
+    @case ('done') {
+      <div class="upload__done">
+        <h1>Your video is live</h1>
+        <p>{{ uploadFileName() }} has finished processing and is now published.</p>
+        <button type="button" (click)="uploadAnother()">Upload another video</button>
+      </div>
+    }
+
+    @case ('error') {
+      <div class="upload__done upload__done--error">
+        <h1>Something went wrong</h1>
+        <p>{{ processingFailed() }}</p>
+        <button type="button" (click)="uploadAnother()">Start over</button>
+      </div>
+    }
+  }
+</main>

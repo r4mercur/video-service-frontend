@@ -24,6 +24,23 @@
   min-height: 12rem;
 }
 
+.detail__state {
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.detail__state--error {
+  color: var(--color-danger-text);
+}
+
+.detail__state--notice {
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-overlay-soft);
+  border: 1px solid var(--color-overlay-medium);
+}
+
 .detail__body {
   display: flex;
   flex-direction: column;
@@ -75,12 +92,6 @@
   color: #b8b4cf;
   max-width: 64ch;
   text-wrap: pretty;
-}
-
-.detail__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
 }
 
 .detail__details {

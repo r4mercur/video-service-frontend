@@ -20,6 +20,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/videos/{id}/view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["view"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/videos/{id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["report"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/videos/{id}/complete": {
         parameters: {
             query?: never;
@@ -98,6 +130,118 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/admin/videos/{id}/unblock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["unblockVideo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/videos/{id}/block": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["blockVideo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/reports/{id}/uphold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["upholdReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/reports/{id}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["dismissReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listCategories"];
+        put?: never;
+        post: operations["createCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/videos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["delete"];
+        options?: never;
+        head?: never;
+        patch: operations["update"];
+        trace?: never;
+    };
+    "/api/admin/categories/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateCategory"];
         trace?: never;
     };
     "/api/videos/{slug}": {
@@ -244,6 +388,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -273,6 +433,17 @@ export interface components {
             /** Format: int32 */
             partNumber?: number;
             url?: string;
+        };
+        SubmitReportRequest: {
+            /** @enum {string} */
+            reason: "COPYRIGHT" | "ILLEGAL_CONTENT" | "HARASSMENT" | "SPAM" | "OTHER";
+            detail?: string;
+        };
+        ReportResponse: {
+            /** Format: int64 */
+            id?: number;
+            /** @enum {string} */
+            status?: "OPEN" | "REVIEWED" | "DISMISSED";
         };
         CompleteUploadRequest: {
             parts: components["schemas"]["CompletedPartDto"][];
@@ -309,22 +480,48 @@ export interface components {
             identifier: string;
             password: string;
         };
-        CursorPageVideoSummaryDto: {
-            items?: components["schemas"]["VideoSummaryDto"][];
-            nextCursor?: string;
+        ModerationActionRequest: {
+            reason: string;
         };
-        VideoSummaryDto: {
+        AdminReportDto: {
+            /** Format: int64 */
+            id?: number;
             /** Format: uuid */
-            id?: string;
-            slug?: string;
-            title?: string;
-            thumbnailUrl?: string;
-            /** Format: int32 */
-            durationSeconds?: number;
-            categorySlug?: string;
-            ownerUsername?: string;
+            videoId?: string;
+            videoSlug?: string;
+            videoTitle?: string;
+            /** @enum {string} */
+            videoStatus?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
+            reporterUsername?: string;
+            reason?: string;
+            detail?: string;
+            /** @enum {string} */
+            status?: "OPEN" | "REVIEWED" | "DISMISSED";
             /** Format: date-time */
-            publishedAt?: string;
+            createdAt?: string;
+        };
+        CreateCategoryRequest: {
+            slug: string;
+            name: string;
+            /** Format: int32 */
+            sortOrder?: number;
+        };
+        AdminCategoryDto: {
+            /** Format: int64 */
+            id?: number;
+            slug?: string;
+            name?: string;
+            /** Format: int32 */
+            sortOrder?: number;
+            active?: boolean;
+        };
+        UpdateVideoRequest: {
+            title?: string;
+            description?: string;
+            /** Format: int64 */
+            categoryId?: number;
+            /** @enum {string} */
+            visibility?: "PUBLIC" | "PRIVATE";
         };
         VideoDetailDto: {
             /** Format: uuid */
@@ -350,6 +547,29 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
         };
+        UpdateCategoryRequest: {
+            name?: string;
+            /** Format: int32 */
+            sortOrder?: number;
+            active?: boolean;
+        };
+        CursorPageVideoSummaryDto: {
+            items?: components["schemas"]["VideoSummaryDto"][];
+            nextCursor?: string;
+        };
+        VideoSummaryDto: {
+            /** Format: uuid */
+            id?: string;
+            slug?: string;
+            title?: string;
+            thumbnailUrl?: string;
+            /** Format: int32 */
+            durationSeconds?: number;
+            categorySlug?: string;
+            ownerUsername?: string;
+            /** Format: date-time */
+            publishedAt?: string;
+        };
         VideoStatusResponse: {
             /** @enum {string} */
             status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
@@ -369,6 +589,10 @@ export interface components {
             name?: string;
             /** Format: int32 */
             sortOrder?: number;
+        };
+        CursorPageAdminReportDto: {
+            items?: components["schemas"]["AdminReportDto"][];
+            nextCursor?: string;
         };
     };
     responses: never;
@@ -424,6 +648,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["InitiateUploadResponse"];
+                };
+            };
+        };
+    };
+    view: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitReportRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReportResponse"];
                 };
             };
         };
@@ -538,6 +808,222 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AccessTokenResponse"];
+                };
+            };
+        };
+    };
+    unblockVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerationActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    blockVideo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerationActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    upholdReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerationActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminReportDto"];
+                };
+            };
+        };
+    };
+    dismissReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerationActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminReportDto"];
+                };
+            };
+        };
+    };
+    listCategories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminCategoryDto"][];
+                };
+            };
+        };
+    };
+    createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminCategoryDto"];
+                };
+            };
+        };
+    };
+    delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVideoRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["VideoDetailDto"];
+                };
+            };
+        };
+    };
+    updateCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AdminCategoryDto"];
                 };
             };
         };
@@ -737,6 +1223,30 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CategoryDto"][];
+                };
+            };
+        };
+    };
+    listReports: {
+        parameters: {
+            query?: {
+                status?: "OPEN" | "REVIEWED" | "DISMISSED";
+                cursor?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CursorPageAdminReportDto"];
                 };
             };
         };

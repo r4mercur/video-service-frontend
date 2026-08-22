@@ -1,0 +1,86 @@
+<div class="upload-progress">
+  <div class="upload-progress__intro">
+    <span class="upload-progress__eyebrow">Upload</span>
+    <h1 class="upload-progress__heading">
+      {{ step() === 'transferring' ? 'Uploading 1 video' : fileName() }}
+    </h1>
+    @if (step() === 'transferring') {
+      <p class="upload-progress__hint">
+        You can leave this page open — the upload keeps running until it finishes.
+      </p>
+    }
+  </div>
+
+  @if (errorMessage(); as message) {
+    <p class="upload-progress__error" role="alert">{{ message }}</p>
+  }
+
+  <div class="upload-progress__card">
+    <div class="upload-progress__summary">
+      <div class="upload-progress__thumb" aria-hidden="true">
+        <span>PREVIEW</span>
+      </div>
+      <div class="upload-progress__meta">
+        <h2>{{ fileName() }}</h2>
+        <div class="upload-progress__meta-row">
+          <span>{{ totalBytes() | appFileSize }}</span>
+        </div>
+        <app-tag variant="badge">{{ step() === 'transferring' ? 'Uploading' : step() }}</app-tag>
+      </div>
+      <div class="upload-progress__percent">
+        <span class="upload-progress__percent-value">{{ percent() }}%</span>
+        <span class="upload-progress__percent-detail">
+          {{ loadedBytes() | appFileSize }} of {{ totalBytes() | appFileSize }}
+        </span>
+      </div>
+    </div>
+
+    <div class="upload-progress__bar-row">
+      <div class="upload-progress__bar">
+        <div class="upload-progress__bar-fill" [style.width.%]="percent()"></div>
+      </div>
+      <div class="upload-progress__bar-footer">
+        <span>
+          @if (paused()) {
+            Paused
+          } @else {
+            {{ speedBytesPerSecond() | appFileSize }}/s
+            @if (etaLabel(); as eta) {
+              · {{ eta }}
+            }
+          }
+        </span>
+        @if (step() === 'transferring') {
+          <div class="upload-progress__controls">
+            <button type="button" class="upload-progress__pause" (click)="pauseToggle.emit()">
+              {{ paused() ? 'Resume' : 'Pause' }}
+            </button>
+            <button type="button" class="upload-progress__cancel" (click)="cancelRequested.emit()">
+              Cancel
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="upload-progress__steps">
+      @for (item of steps(); track item.title) {
+        <div class="upload-progress__step" [attr.data-state]="item.state">
+          <span class="upload-progress__step-dot">
+            @if (item.state === 'done') {
+              ✓
+            } @else if (item.state === 'failed') {
+              ✕
+            } @else {
+              {{ $index + 1 }}
+            }
+          </span>
+          <div class="upload-progress__step-text">
+            <span class="upload-progress__step-title">{{ item.title }}</span>
+            <span class="upload-progress__step-note">{{ item.note }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

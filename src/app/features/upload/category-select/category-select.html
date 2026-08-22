@@ -1,0 +1,36 @@
+<div class="category-select">
+  <button
+    #trigger
+    type="button"
+    [id]="id()"
+    class="category-select__trigger"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="open()"
+    [disabled]="disabled()"
+    (click)="toggle()"
+    (blur)="onTriggerBlur()"
+  >
+    <span [class.category-select__placeholder]="!selectedName()">
+      {{ selectedName() ?? 'Select a genre' }}
+    </span>
+    <span class="category-select__chevron" aria-hidden="true">▾</span>
+  </button>
+
+  @if (open()) {
+    <ul
+      #listbox
+      ngListbox
+      tabindex="-1"
+      class="category-select__popup"
+      [value]="selectedIds()"
+      (valueChange)="onSelectedIdsChange($event)"
+      (keydown)="onKeydown($event)"
+    >
+      @for (category of categories(); track category.id) {
+        <li ngOption [value]="category.id" [label]="category.name" class="category-select__option">
+          {{ category.name }}
+        </li>
+      }
+    </ul>
+  }
+</div>

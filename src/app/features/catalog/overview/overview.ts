@@ -1,23 +1,79 @@
-import { Component, signal } from '@angular/core';
+import { HttpClient, httpResource } from '@angular/common/http';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Pagination } from '@shared/pagination/pagination';
-import { MOCK_VIDEOS } from './mock-videos';
+import { components } from '@core/api/schema';
+import { isApiProblem } from '@core/http/api-problem';
+import { firstValueFrom } from 'rxjs';
 import { VideoRow } from './video-row/video-row';
+
+type VideoSummaryDto = components['schemas']['VideoSummaryDto'];
+type CursorPage = components['schemas']['CursorPageVideoSummaryDto'];
+
+const PAGE_SIZE = 12;
 
 @Component({
   selector: 'app-overview',
-  imports: [RouterLink, VideoRow, Pagination],
+  imports: [RouterLink, VideoRow],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
 })
 export class Overview {
-  protected readonly videos = signal(MOCK_VIDEOS);
-  protected readonly currentPage = signal(1);
-  // Fest verdrahtet bis AP 4 echte Server-Pagination anbindet.
-  protected readonly totalPages = signal(12);
-  protected readonly totalCount = signal(142);
+  private readonly http = inject(HttpClient);
 
-  protected onPageChange(page: number): void {
-    this.currentPage.set(page);
+  private readonly initialFeed = httpResource<CursorPage>(() => ({
+    url: '/api/videos',
+    params: { limit: PAGE_SIZE },
+  }));
+
+  protected readonly videos = signal<VideoSummaryDto[]>([]);
+  protected readonly nextCursor = signal<string | undefined>(undefined);
+  protected readonly loadingMore = signal(false);
+  protected readonly loadMoreError = signal<string | null>(null);
+
+  protected readonly hasMore = computed(() => this.nextCursor() !== undefined);
+  protected readonly initialLoading = this.initialFeed.isLoading;
+  protected readonly initialError = computed(() => {
+    const error = this.initialFeed.error();
+    return error ? this.describeError(error) : null;
+  });
+
+  constructor() {
+    effect(() => {
+      const page = this.initialFeed.value();
+      if (page) {
+        this.videos.set(page.items ?? []);
+        // Backend liefert bei fehlender nächster Seite explizit "nextCursor": null,
+        // nicht ein fehlendes Feld — auf undefined normalisieren.
+        this.nextCursor.set(page.nextCursor ?? undefined);
+      }
+    });
+  }
+
+  protected async loadMore(): Promise<void> {
+    const cursor = this.nextCursor();
+    if (!cursor || this.loadingMore()) {
+      return;
+    }
+
+    this.loadingMore.set(true);
+    this.loadMoreError.set(null);
+    try {
+      const page = await firstValueFrom(
+        this.http.get<CursorPage>('/api/videos', { params: { limit: PAGE_SIZE, cursor } }),
+      );
+      this.videos.update((existing) => [...existing, ...(page.items ?? [])]);
+      this.nextCursor.set(page.nextCursor ?? undefined);
+    } catch (error) {
+      this.loadMoreError.set(this.describeError(error));
+    } finally {
+      this.loadingMore.set(false);
+    }
+  }
+
+  private describeError(error: unknown): string {
+    if (isApiProblem(error)) {
+      return error.detail ?? error.title;
+    }
+    return 'Could not load videos. Please try again.';
   }
 }

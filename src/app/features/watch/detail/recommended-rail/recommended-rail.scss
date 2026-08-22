@@ -84,6 +84,12 @@
     top: 0.4375rem;
     letter-spacing: 0.1em;
   }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
 .recommended__duration {

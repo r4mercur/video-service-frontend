@@ -30,9 +30,12 @@ export const appConfig: ApplicationConfig = {
       ]),
     ),
     // Sequenziell statt zwei parallele Initializer: Auth braucht die geladene apiBaseUrl.
-    provideAppInitializer(async () => {
-      await inject(ConfigService).load();
-      await inject(AuthService).restoreSession();
+    // inject() muss synchron VOR dem ersten await passieren (NG0203), daher beide Services
+    // zuerst auflösen und erst danach die async-Kette anstoßen.
+    provideAppInitializer(() => {
+      const config = inject(ConfigService);
+      const auth = inject(AuthService);
+      return config.load().then(() => auth.restoreSession());
     }),
   ],
 };

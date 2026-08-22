@@ -1,56 +1,73 @@
 <main class="detail">
-  @defer (on viewport) {
-    <app-player-frame
-      [positionSeconds]="video.playbackPositionSeconds"
-      [durationSeconds]="video.durationSeconds"
-      [quality]="video.quality"
-    />
-  } @placeholder {
-    <div class="detail__player-placeholder"></div>
-  }
+  @if (loadError(); as message) {
+    <p class="detail__state detail__state--error" role="alert">{{ message }}</p>
+  } @else if (video.isLoading() && !video.hasValue()) {
+    <p class="detail__state">Loading…</p>
+  } @else if (video.value(); as data) {
+    @if (unavailableMessage(); as message) {
+      <p class="detail__state detail__state--notice">{{ message }}</p>
+    } @else {
+      @defer (on viewport) {
+        <app-player-frame
+          [positionSeconds]="progress()?.positionSeconds ?? 0"
+          [durationSeconds]="data.durationSeconds ?? 0"
+          [quality]="resolution() ?? 'Auto'"
+        />
+      } @placeholder {
+        <div class="detail__player-placeholder"></div>
+      }
+    }
 
-  <div class="detail__body">
-    <div class="detail__main">
-      <h1 class="detail__title">{{ video.title }}</h1>
-      <div class="detail__meta">
-        <span>{{ video.views | appCompactNumber }} views</span>
-        <span class="detail__dot" aria-hidden="true"></span>
-        <span>Uploaded {{ video.uploadedAt | date: 'd MMMM y' }}</span>
-        <span class="detail__dot" aria-hidden="true"></span>
-        <span>{{ video.durationSeconds | appDuration }}</span>
-      </div>
-      <p class="detail__description">{{ video.description }}</p>
-      <div class="detail__tags">
-        @for (tag of video.tags; track tag) {
-          <app-tag variant="chip">{{ tag }}</app-tag>
+    <div class="detail__body">
+      <div class="detail__main">
+        <h1 class="detail__title">{{ data.title }}</h1>
+        <div class="detail__meta">
+          @if (data.ownerUsername; as owner) {
+            <span>{{ owner }}</span>
+            <span class="detail__dot" aria-hidden="true"></span>
+          }
+          @if (data.publishedAt; as publishedAt) {
+            <span>Uploaded {{ publishedAt | date: 'd MMMM y' }}</span>
+            <span class="detail__dot" aria-hidden="true"></span>
+          }
+          <span>{{ data.durationSeconds ?? 0 | appDuration }}</span>
+        </div>
+        @if (data.description) {
+          <p class="detail__description">{{ data.description }}</p>
         }
       </div>
+
+      <aside class="detail__details">
+        <span class="detail__details-eyebrow">Details</span>
+        <div class="detail__details-row">
+          <span>Genre</span>
+          <span>{{ categoryName() }}</span>
+        </div>
+        @if (data.publishedAt) {
+          <div class="detail__details-row">
+            <span>Published</span>
+            <span>{{ data.publishedAt | date: 'd MMMM y' }}</span>
+          </div>
+        }
+        @if (resolution(); as resolutionLabel) {
+          <div class="detail__details-row">
+            <span>Resolution</span>
+            <span>{{ resolutionLabel }}</span>
+          </div>
+        }
+        @if (data.ownerUsername; as owner) {
+          <div class="detail__details-row">
+            <span>Uploaded by</span>
+            <span>{{ owner }}</span>
+          </div>
+        }
+      </aside>
     </div>
 
-    <aside class="detail__details">
-      <span class="detail__details-eyebrow">Details</span>
-      <div class="detail__details-row">
-        <span>Genre</span>
-        <span>{{ video.genre }}</span>
-      </div>
-      <div class="detail__details-row">
-        <span>Season</span>
-        <span>{{ video.season }}</span>
-      </div>
-      <div class="detail__details-row">
-        <span>Language</span>
-        <span>{{ video.language }}</span>
-      </div>
-      <div class="detail__details-row">
-        <span>Quality</span>
-        <span>{{ video.quality }}</span>
-      </div>
-    </aside>
-  </div>
-
-  @defer (on viewport) {
-    <app-recommended-rail [items]="recommended" />
-  } @placeholder {
-    <div class="detail__recommended-placeholder"></div>
+    @defer (on viewport) {
+      <app-recommended-rail [items]="recommended()" />
+    } @placeholder {
+      <div class="detail__recommended-placeholder"></div>
+    }
   }
 </main>

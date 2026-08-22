@@ -1,17 +1,26 @@
 <section class="recommended">
   <div class="recommended__header">
-    <span class="recommended__eyebrow">Recommended for you</span>
+    <span class="recommended__eyebrow">More like this</span>
     <a routerLink="/catalog">Back to latest uploads</a>
   </div>
   <div class="recommended__grid">
     @for (item of items(); track item.id) {
-      <a class="recommended__card" [routerLink]="['/watch', item.id]">
+      <a class="recommended__card" [routerLink]="['/watch', item.slug]">
         <div class="recommended__thumb">
-          <span>THUMBNAIL</span>
-          <span class="recommended__duration">{{ item.durationSeconds | appDuration }}</span>
+          @if (item.thumbnailUrl; as thumbnailUrl) {
+            <img [src]="thumbnailUrl" [alt]="item.title ?? ''" loading="lazy" />
+          } @else {
+            <span>THUMBNAIL</span>
+          }
+          <span class="recommended__duration">{{ item.durationSeconds ?? 0 | appDuration }}</span>
         </div>
         <h3>{{ item.title }}</h3>
-        <span class="recommended__sub">{{ item.sub }}</span>
+        <span class="recommended__sub">
+          {{ categories.nameForSlug(item.categorySlug) }}
+          @if (item.publishedAt; as publishedAt) {
+            · {{ publishedAt | appRelativeTime }}
+          }
+        </span>
       </a>
     }
   </div>

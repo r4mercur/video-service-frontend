@@ -6,7 +6,9 @@
     </a>
     <nav class="header__nav" aria-label="Main">
       <a routerLink="/catalog" routerLinkActive="header__link--active">Browse</a>
-      <a routerLink="/upload" routerLinkActive="header__link--active">Upload</a>
+      @if (isAuthenticated()) {
+        <a routerLink="/upload" routerLinkActive="header__link--active">Upload</a>
+      }
     </nav>
   </div>
   <div class="header__end">

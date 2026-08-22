@@ -1,0 +1,29 @@
+<div
+  class="drop-zone"
+  [class.drop-zone--active]="dragging()"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+  (drop)="onDrop($event)"
+>
+  <input
+    #fileInput
+    type="file"
+    class="drop-zone__input"
+    accept="video/mp4,video/quicktime,video/webm"
+    (change)="onFileInputChange($event)"
+  />
+
+  <div class="drop-zone__icon" aria-hidden="true">
+    <div class="drop-zone__icon-triangle"></div>
+  </div>
+
+  @if (dragging()) {
+    <h2 class="drop-zone__heading">Drop to upload</h2>
+  } @else {
+    <h2 class="drop-zone__heading">Drag your video here</h2>
+    <p class="drop-zone__hint">The upload starts as soon as you drop the file.</p>
+    <div class="drop-zone__actions">
+      <button type="button" class="drop-zone__choose" (click)="openPicker()">Choose a file</button>
+    </div>
+  }
+</div>

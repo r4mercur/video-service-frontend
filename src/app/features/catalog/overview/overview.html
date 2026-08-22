@@ -1,24 +1,14 @@
 <main class="overview">
   <div class="overview__intro">
-    <span class="overview__eyebrow">New this week</span>
+    <span class="overview__eyebrow">Browse</span>
     <h1 class="overview__heading">Latest uploads</h1>
-    <p class="overview__count">Showing 1–{{ videos().length }} of {{ totalCount() }} titles.</p>
   </div>
 
-  @if (videos().length > 0) {
-    <div class="overview__list">
-      @for (video of videos(); track video.id) {
-        <app-video-row [video]="video" />
-      }
-    </div>
-
-    <app-pagination
-      class="overview__pagination"
-      [currentPage]="currentPage()"
-      [totalPages]="totalPages()"
-      (pageChange)="onPageChange($event)"
-    />
-  } @else {
+  @if (initialError(); as message) {
+    <p class="overview__state overview__state--error" role="alert">{{ message }}</p>
+  } @else if (initialLoading() && videos().length === 0) {
+    <p class="overview__state">Loading videos…</p>
+  } @else if (videos().length === 0) {
     <div class="overview__empty">
       <div class="overview__empty-icon"></div>
       <h2>Nothing here yet</h2>
@@ -28,5 +18,27 @@
       </p>
       <a class="overview__empty-cta" routerLink="/upload">Upload a video</a>
     </div>
+  } @else {
+    <div class="overview__list">
+      @for (video of videos(); track video.id) {
+        <app-video-row [video]="video" />
+      }
+    </div>
+
+    @if (hasMore()) {
+      <div class="overview__load-more">
+        @if (loadMoreError(); as message) {
+          <p class="overview__state overview__state--error" role="alert">{{ message }}</p>
+        }
+        <button
+          type="button"
+          class="overview__load-more-button"
+          [disabled]="loadingMore()"
+          (click)="loadMore()"
+        >
+          {{ loadingMore() ? 'Loading…' : 'Load more' }}
+        </button>
+      </div>
+    }
   }
 </main>

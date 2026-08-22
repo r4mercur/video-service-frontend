@@ -1,19 +1,35 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CompactNumberPipe } from '@shared/pipes/compact-number';
+import { components } from '@core/api/schema';
+import { CategoriesService } from '@core/catalog/categories';
+import { WatchProgressService } from '@core/watch-progress/watch-progress';
 import { DurationPipe } from '@shared/pipes/duration';
 import { RelativeTimePipe } from '@shared/pipes/relative-time';
 import { Tag } from '@shared/tag/tag';
-import { VideoSummary, watchProgressLabel } from '../video-summary';
+
+type VideoSummaryDto = components['schemas']['VideoSummaryDto'];
 
 @Component({
   selector: 'app-video-row',
-  imports: [RouterLink, Tag, RelativeTimePipe, CompactNumberPipe, DurationPipe],
+  imports: [RouterLink, Tag, RelativeTimePipe, DurationPipe],
   templateUrl: './video-row.html',
   styleUrl: './video-row.scss',
 })
 export class VideoRow {
-  readonly video = input.required<VideoSummary>();
+  private readonly categories = inject(CategoriesService);
+  private readonly watchProgress = inject(WatchProgressService);
 
-  protected readonly progressLabel = computed(() => watchProgressLabel(this.video()));
+  readonly video = input.required<VideoSummaryDto>();
+
+  protected readonly title = computed(() => this.video().title ?? 'Untitled');
+  protected readonly slug = computed(() => this.video().slug ?? '');
+  protected readonly durationSeconds = computed(() => this.video().durationSeconds ?? 0);
+  protected readonly categoryName = computed(() =>
+    this.categories.nameForSlug(this.video().categorySlug),
+  );
+
+  protected readonly progressPercent = computed(() => {
+    const id = this.video().id;
+    return id ? this.watchProgress.percentFor(id) : 0;
+  });
 }

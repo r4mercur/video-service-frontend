@@ -11,8 +11,9 @@ export class RelativeTimePipe implements PipeTransform {
     style: 'short',
   });
 
-  transform(value: Date): string {
-    const diffMs = value.getTime() - Date.now();
+  transform(value: Date | string): string {
+    const date = value instanceof Date ? value : new Date(value);
+    const diffMs = date.getTime() - Date.now();
 
     if (Math.abs(diffMs) < HOUR) {
       return this.formatter.format(Math.round(diffMs / MINUTE), 'minute');

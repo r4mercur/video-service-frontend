@@ -1,0 +1,76 @@
+<form class="metadata-form" (submit)="onSubmit($event)" novalidate>
+  <div class="metadata-form__intro">
+    <span class="metadata-form__eyebrow">Upload</span>
+    <h1 class="metadata-form__heading">Add a few details</h1>
+    <p class="metadata-form__hint">
+      {{ fileName() }} — details are locked in before the upload starts.
+    </p>
+  </div>
+
+  <div class="metadata-form__grid">
+    <div class="metadata-form__field">
+      <label for="upload-title">Title</label>
+      <input id="upload-title" type="text" autocomplete="off" [formField]="metadataForm.title" />
+      @if (metadataForm.title().touched() && metadataForm.title().invalid()) {
+        <span class="metadata-form__error">{{ metadataForm.title().errors()[0]?.message }}</span>
+      }
+    </div>
+
+    <div class="metadata-form__field">
+      <label for="upload-genre">Genre</label>
+      <app-category-select id="upload-genre" [formField]="metadataForm.categoryId" />
+      @if (metadataForm.categoryId().touched() && metadataForm.categoryId().invalid()) {
+        <span class="metadata-form__error">{{
+          metadataForm.categoryId().errors()[0]?.message
+        }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="metadata-form__field">
+    <span class="metadata-form__label">Visibility</span>
+    <div class="metadata-form__visibility" role="group" aria-label="Visibility">
+      <button
+        type="button"
+        class="metadata-form__visibility-option"
+        [class.metadata-form__visibility-option--active]="
+          metadataForm.visibility().value() === 'PUBLIC'
+        "
+        [attr.aria-pressed]="metadataForm.visibility().value() === 'PUBLIC'"
+        (click)="setVisibility('PUBLIC')"
+      >
+        Public
+      </button>
+      <button
+        type="button"
+        class="metadata-form__visibility-option"
+        [class.metadata-form__visibility-option--active]="
+          metadataForm.visibility().value() === 'PRIVATE'
+        "
+        [attr.aria-pressed]="metadataForm.visibility().value() === 'PRIVATE'"
+        (click)="setVisibility('PRIVATE')"
+      >
+        Private
+      </button>
+    </div>
+  </div>
+
+  <div class="metadata-form__field">
+    <label for="upload-description">Description</label>
+    <textarea
+      id="upload-description"
+      rows="3"
+      placeholder="Tell viewers what this video is about."
+      [formField]="metadataForm.description"
+    ></textarea>
+    @if (metadataForm.description().touched() && metadataForm.description().invalid()) {
+      <span class="metadata-form__error">{{
+        metadataForm.description().errors()[0]?.message
+      }}</span>
+    }
+  </div>
+
+  <app-button type="submit" size="md" [disabled]="submitting()">
+    {{ submitting() ? 'Starting upload…' : 'Start upload' }}
+  </app-button>
+</form>
