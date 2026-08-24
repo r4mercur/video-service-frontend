@@ -70,7 +70,7 @@
 
 .recommended__thumb {
   position: relative;
-  height: 4.375rem;
+  aspect-ratio: 16 / 9;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: repeating-linear-gradient(135deg, #1c1830 0 8px, #241f3d 8px 16px);

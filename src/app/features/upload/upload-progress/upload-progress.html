@@ -25,7 +25,6 @@
         <div class="upload-progress__meta-row">
           <span>{{ totalBytes() | appFileSize }}</span>
         </div>
-        <app-tag variant="badge">{{ step() === 'transferring' ? 'Uploading' : step() }}</app-tag>
       </div>
       <div class="upload-progress__percent">
         <span class="upload-progress__percent-value">{{ percent() }}%</span>
@@ -40,8 +39,11 @@
     </div>
 
     <div class="upload-progress__bar-row">
-      <div class="upload-progress__bar">
+      <div class="upload-progress__bar" [attr.data-state]="step()">
         <div class="upload-progress__bar-fill" [style.width.%]="percent()"></div>
+        <span class="upload-progress__bar-label">
+          {{ step() === 'transferring' ? 'Uploading' : step() }}
+        </span>
       </div>
       <div class="upload-progress__bar-footer">
         <span>

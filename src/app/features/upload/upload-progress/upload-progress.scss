@@ -1,3 +1,5 @@
+@use 'mixins' as *;
+
 .upload-progress {
   display: flex;
   flex-direction: column;
@@ -57,14 +59,20 @@
 
 .upload-progress__summary {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-4);
+
+  @include respond-up(sm) {
+    flex-wrap: nowrap;
+    gap: var(--space-5);
+  }
 }
 
 .upload-progress__thumb {
   flex: none;
-  width: 7.5rem;
-  height: 4.2rem;
+  width: 6rem;
+  height: 3.375rem;
   border-radius: var(--radius-md);
   background: repeating-linear-gradient(135deg, #1c1830 0 8px, #241f3d 8px 16px);
   display: flex;
@@ -74,6 +82,11 @@
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   letter-spacing: 0.12em;
+
+  @include respond-up(sm) {
+    width: 7.5rem;
+    height: 4.2rem;
+  }
 }
 
 .upload-progress__meta {
@@ -100,11 +113,19 @@
 }
 
 .upload-progress__percent {
-  flex: none;
+  flex: 1 0 100%;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-1);
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  @include respond-up(sm) {
+    flex: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+  }
 }
 
 .upload-progress__percent-value {
@@ -128,17 +149,41 @@
 }
 
 .upload-progress__bar {
-  height: 8px;
-  border-radius: 5px;
+  position: relative;
+  height: 1.75rem;
+  border-radius: var(--radius-pill);
   background: var(--color-overlay-strong);
   overflow: hidden;
+
+  &[data-state='failed'] {
+    background: var(--color-danger-bg);
+  }
 }
 
 .upload-progress__bar-fill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
   background: var(--gradient-accent);
   transition: width 0.2s ease;
+
+  [data-state='failed'] & {
+    background: var(--color-danger);
+  }
+}
+
+.upload-progress__bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-on-accent);
+  pointer-events: none;
 }
 
 .upload-progress__bar-footer {

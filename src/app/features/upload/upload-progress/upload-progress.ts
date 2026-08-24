@@ -1,6 +1,5 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FileSizePipe } from '@shared/pipes/file-size';
-import { Tag } from '@shared/tag/tag';
 import { etaSeconds } from '../upload-progress-math';
 
 export type UploadStep = 'transferring' | 'processing' | 'published' | 'failed';
@@ -13,7 +12,7 @@ interface StepView {
 
 @Component({
   selector: 'app-upload-progress',
-  imports: [FileSizePipe, Tag],
+  imports: [FileSizePipe],
   templateUrl: './upload-progress.html',
   styleUrl: './upload-progress.scss',
 })

@@ -10,8 +10,8 @@ const STORAGE_KEY = 'watch-progress';
 
 /**
  * Client-lokales Wiedergabe-Tracking (localStorage), da es dafür noch keine Backend-API gibt
- * (siehe CLAUDE.md Abschnitt 12). Das Schreiben passiert im echten Player (AP 5, timeupdate);
- * bis dahin bleibt hier für jedes Video "kein Fortschritt".
+ * (siehe CLAUDE.md Abschnitt 12). Wird vom Player bei gedrosseltem `timeupdate` sowie
+ * `beforeunload` beschrieben (`player-frame.ts`).
  */
 @Injectable({ providedIn: 'root' })
 export class WatchProgressService {

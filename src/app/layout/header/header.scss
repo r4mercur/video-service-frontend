@@ -1,17 +1,27 @@
+@use 'mixins' as *;
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 4.375rem;
-  padding: 0 var(--space-6);
+  padding: 0 var(--space-4);
   border-bottom: 1px solid var(--color-border-subtle);
   background: rgb(13 12 20 / 60%);
+
+  @include respond-up(sm) {
+    padding: 0 var(--space-6);
+  }
 }
 
 .header__start {
   display: flex;
   align-items: center;
-  gap: var(--space-7);
+  gap: var(--space-4);
+
+  @include respond-up(sm) {
+    gap: var(--space-7);
+  }
 }
 
 .header__brand {
@@ -40,20 +50,29 @@
 }
 
 .header__wordmark {
+  display: none;
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: var(--text-md);
   letter-spacing: 0.02em;
+
+  @include respond-up(sm) {
+    display: inline;
+  }
 }
 
 .header__nav {
   display: flex;
   align-items: center;
-  gap: var(--space-6);
+  gap: var(--space-4);
   font-size: var(--text-base);
 
   a {
     color: var(--color-text-secondary);
+  }
+
+  @include respond-up(sm) {
+    gap: var(--space-6);
   }
 }
 

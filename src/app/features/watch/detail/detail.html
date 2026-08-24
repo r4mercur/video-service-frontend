@@ -7,14 +7,16 @@
     @if (unavailableMessage(); as message) {
       <p class="detail__state detail__state--notice">{{ message }}</p>
     } @else {
-      @defer (on viewport) {
-        <app-player-frame
-          [positionSeconds]="progress()?.positionSeconds ?? 0"
-          [durationSeconds]="data.durationSeconds ?? 0"
-          [quality]="resolution() ?? 'Auto'"
-        />
-      } @placeholder {
-        <div class="detail__player-placeholder"></div>
+      @if (data.id; as videoId) {
+        @defer (on viewport) {
+          <app-player-frame
+            [videoId]="videoId"
+            [posterUrl]="data.thumbnailUrl ?? null"
+            [positionSeconds]="progress()?.positionSeconds ?? 0"
+          />
+        } @placeholder {
+          <div class="detail__player-placeholder"></div>
+        }
       }
     }
 

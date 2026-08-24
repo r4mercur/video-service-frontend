@@ -3,14 +3,14 @@ import { authGuard } from '@core/auth/auth-guard';
 
 export const routes: Routes = [
   {
-    path: 'auth',
-    loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
-  },
-  {
     path: '',
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'catalog' },
+      {
+        path: 'auth',
+        loadChildren: () => import('@features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
+      },
       {
         path: 'catalog',
         loadChildren: () =>

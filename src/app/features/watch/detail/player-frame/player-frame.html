@@ -1,20 +1,193 @@
-<div class="player">
-  <span class="player__label">PLAYER — VIDEO FRAME</span>
-  <span class="player__play-button" aria-hidden="true">
-    <span class="player__play-icon"></span>
-  </span>
-  <div class="player__controls">
-    <div class="player__track">
-      <div class="player__fill" [style.width.%]="progressPercent()"></div>
-    </div>
-    <div class="player__row">
-      <span>{{ positionSeconds() | appDuration }} / {{ durationSeconds() | appDuration }}</span>
-      <div class="player__actions">
-        <span>Subtitles</span>
-        <span>{{ quality() }}</span>
-        <span>Volume</span>
-        <span>Full screen</span>
+<div
+  class="player"
+  #playerEl
+  (mousemove)="onPlayerActivity()"
+  (pointerdown)="onPlayerActivity()"
+  (focusin)="onPlayerActivity()"
+>
+  @if (playbackError(); as message) {
+    <p class="player__error" role="alert">{{ message }}</p>
+  } @else {
+    <video
+      #videoEl
+      class="player__video"
+      [poster]="posterUrl() ?? ''"
+      playsinline
+      (click)="togglePlay()"
+    ></video>
+
+    <div class="player__controls" [class.player__controls--hidden]="!controlsVisible()">
+      <input
+        class="player__seek"
+        type="range"
+        min="0"
+        [max]="duration() || 0"
+        step="0.1"
+        [value]="displaySeek()"
+        (input)="onSeekInput($event)"
+        (change)="onSeekCommit()"
+        aria-label="Seek"
+      />
+
+      <div class="player__row">
+        <div class="player__actions">
+          <button
+            type="button"
+            class="player__button player__button--icon"
+            (click)="togglePlay()"
+            [attr.aria-label]="isPlaying() ? 'Pause' : 'Play'"
+          >
+            @if (isPlaying()) {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <rect x="5" y="4" width="4" height="16" rx="1" fill="currentColor" />
+                <rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M6 4l14 8-14 8V4z" fill="currentColor" />
+              </svg>
+            }
+          </button>
+          <span class="player__time">
+            {{ currentTime() | appDuration }} / {{ duration() | appDuration }}
+          </span>
+        </div>
+
+        <div class="player__actions">
+          @if (levels().length > 0) {
+            <div class="player__quality" #qualityContainer>
+              <button
+                type="button"
+                class="player__button player__button--pill"
+                aria-haspopup="listbox"
+                [attr.aria-expanded]="qualityMenuOpen()"
+                (click)="toggleQualityMenu()"
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                  <rect x="4" y="14" width="3" height="6" rx="1" fill="currentColor" />
+                  <rect x="10.5" y="9" width="3" height="11" rx="1" fill="currentColor" />
+                  <rect x="17" y="4" width="3" height="16" rx="1" fill="currentColor" />
+                </svg>
+                <span>{{ currentQualityLabel() }}</span>
+                <span aria-hidden="true">▾</span>
+              </button>
+              @if (qualityMenuOpen()) {
+                <ul
+                  ngListbox
+                  tabindex="-1"
+                  class="player__quality-popup"
+                  [value]="[currentLevelIndex()]"
+                  (valueChange)="onQualityChange($event)"
+                  (keydown)="onQualityKeydown($event)"
+                >
+                  <li ngOption [value]="-1" label="Auto" class="player__quality-option">Auto</li>
+                  @for (level of levels(); track level.index) {
+                    <li
+                      ngOption
+                      [value]="level.index"
+                      [label]="level.height + 'p'"
+                      class="player__quality-option"
+                    >
+                      {{ level.height }}p
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+
+          <button
+            type="button"
+            class="player__button player__button--icon"
+            (click)="toggleMute()"
+            [attr.aria-label]="muted() ? 'Unmute' : 'Mute'"
+          >
+            @if (muted() || displayVolume() === 0) {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor" />
+                <line
+                  x1="16"
+                  y1="9"
+                  x2="22"
+                  y2="15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <line
+                  x1="22"
+                  y1="9"
+                  x2="16"
+                  y2="15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor" />
+                <path
+                  d="M16 8a5 5 0 0 1 0 8"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M18.5 5.5a9 9 0 0 1 0 13"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            }
+          </button>
+          <input
+            class="player__volume"
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            [value]="displayVolume()"
+            (input)="onVolumeInput($event)"
+            (change)="onVolumeCommit()"
+            aria-label="Volume"
+          />
+
+          <button
+            type="button"
+            class="player__button player__button--icon"
+            (click)="toggleFullscreen()"
+            [attr.aria-label]="isFullscreen() ? 'Exit full screen' : 'Full screen'"
+          >
+            @if (isFullscreen()) {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            }
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  }
 </div>
