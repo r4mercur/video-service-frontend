@@ -13,19 +13,18 @@ import { Locator, Page, expect, test } from '@playwright/test';
 const VIDEO_ID = 'e2e-fake-video-id';
 const PART_URL = 'https://mock-storage.e2e.local/part-1';
 
-function uniqueUser() {
-  const suffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  return {
-    email: `e2e-${suffix}@example.com`,
-    username: `e2e${suffix}`,
-    password: 'correct-horse-battery-staple',
-  };
-}
+// Fest angelegter Test-Account statt Registrierung pro Lauf — das lokale Backend limitiert
+// /api/auth/register pro Zeitfenster, was wiederholte lokale Testläufe unzuverlässig machte.
+// Der Account muss vorab existieren (siehe Backend-Testdaten/-Seed).
+const TEST_USER = {
+  identifier: 'testuser',
+  password: 'Test1234!',
+};
 
-// Sowohl `.fill()` als auch `.pressSequentially()` lassen das Feld gelegentlich leer, wenn
+// Sowohl `.fill()` als auch `.pressSequentially()` lassen ein Feld gelegentlich leer, wenn
 // Chromium wegen `type="email"`/`autocomplete` eine Autofill-Vorschlagsleiste einblendet, die
-// mit der Eingabe kollidiert (~40% der Läufe im lokalen Test, ausschließlich beim Email-Feld).
-// `toPass` macht das robust, statt die Ursache in fremdem Auth-Code zu jagen.
+// mit der Eingabe kollidiert. `toPass` macht das robust, statt die Ursache in fremdem Auth-Code
+// zu jagen.
 async function typeReliably(locator: Locator, value: string): Promise<void> {
   await expect(async () => {
     await locator.fill('');
@@ -34,13 +33,12 @@ async function typeReliably(locator: Locator, value: string): Promise<void> {
   }).toPass({ timeout: 5000 });
 }
 
-async function signUp(page: Page, user: ReturnType<typeof uniqueUser>): Promise<void> {
+async function login(page: Page): Promise<void> {
   await page.goto('/auth');
-  await page.getByRole('button', { name: 'Sign up' }).click();
-  await typeReliably(page.getByLabel('Email'), user.email);
-  await typeReliably(page.getByLabel('Username'), user.username);
-  await typeReliably(page.getByLabel('Password'), user.password);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await typeReliably(page.getByLabel('Email or username'), TEST_USER.identifier);
+  await typeReliably(page.getByLabel('Password'), TEST_USER.password);
+  // "Log in" ist sowohl der Tab-Button als auch der Submit-Button — über [type=submit] eindeutig.
+  await page.locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/\/catalog/);
 }
 
@@ -110,17 +108,10 @@ async function mockUploadBackend(page: Page): Promise<void> {
   });
 }
 
-// Serial statt parallel: zwei gleichzeitige Registrierungen haben sich gegen das lokale Backend
-// als fehleranfällig gezeigt (transientes "Something went wrong" statt Erfolg). Ein geteilter
-// `storageState`/Shared-Page-Ansatz wurde verworfen — WebKit repliziert den httpOnly-Refresh-
-// Cookie aus `storageState` auf `http://localhost` nicht zuverlässig wie Chromium, jeder Test
-// registriert sich hier deshalb selbst.
-test.describe.configure({ mode: 'serial' });
-
 test.describe('Upload', () => {
   test('drop zone → metadata → transfer → published', async ({ page }) => {
     await mockUploadBackend(page);
-    await signUp(page, uniqueUser());
+    await login(page);
 
     await page.getByRole('link', { name: 'Upload', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Add a video' })).toBeVisible();
@@ -152,7 +143,7 @@ test.describe('Upload', () => {
 
   test('rejects a file with the wrong type', async ({ page }) => {
     await mockUploadBackend(page);
-    await signUp(page, uniqueUser());
+    await login(page);
 
     await page.getByRole('link', { name: 'Upload', exact: true }).click();
     await page.locator('input[type="file"]').setInputFiles({
