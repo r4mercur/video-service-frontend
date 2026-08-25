@@ -8,6 +8,7 @@ export type InitiateUploadResponse = components['schemas']['InitiateUploadRespon
 export type UploadPartUrl = components['schemas']['UploadPartUrl'];
 export type CompletedPartDto = components['schemas']['CompletedPartDto'];
 export type VideoStatusResponse = components['schemas']['VideoStatusResponse'];
+export type CursorPageVideoDetailDto = components['schemas']['CursorPageVideoDetailDto'];
 
 /** Signals a deliberate abort (Pause/Cancel) — callers must not treat this as a failed upload. */
 export class UploadAbortedError extends Error {
@@ -30,6 +31,8 @@ export interface UploadTransport {
   uploadPart(url: string, contentType: string, blob: Blob): Observable<PartUploadEvent>;
   complete(videoId: string, parts: CompletedPartDto[]): Promise<void>;
   status(videoId: string): Promise<VideoStatusResponse>;
+  /** VideoStatusResponse liefert keinen slug — für den Link zum fertigen Video wird er hier über die eigene Videoliste aufgelöst. */
+  resolvePublishedSlug(videoId: string): Promise<string | null>;
 }
 
 /**
@@ -93,5 +96,10 @@ export class PresignedUploadTransport implements UploadTransport {
 
   async status(videoId: string): Promise<VideoStatusResponse> {
     return firstValueFrom(this.http.get<VideoStatusResponse>(`/api/videos/${videoId}/status`));
+  }
+
+  async resolvePublishedSlug(videoId: string): Promise<string | null> {
+    const page = await firstValueFrom(this.http.get<CursorPageVideoDetailDto>('/api/me/videos'));
+    return page.items?.find((video) => video.id === videoId)?.slug ?? null;
   }
 }

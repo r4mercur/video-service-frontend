@@ -11,6 +11,7 @@ import { Locator, Page, expect, test } from '@playwright/test';
  */
 
 const VIDEO_ID = 'e2e-fake-video-id';
+const VIDEO_SLUG = 'e2e-test-clip';
 const PART_URL = 'https://mock-storage.e2e.local/part-1';
 
 // Fest angelegter Test-Account statt Registrierung pro Lauf — das lokale Backend limitiert
@@ -106,6 +107,14 @@ async function mockUploadBackend(page: Page): Promise<void> {
       body: JSON.stringify({ status: statusPolls < 2 ? 'PROCESSING' : 'READY' }),
     });
   });
+
+  await page.route('**/api/me/videos', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [{ id: VIDEO_ID, slug: VIDEO_SLUG }] }),
+    });
+  });
 }
 
 test.describe('Upload', () => {
@@ -139,6 +148,10 @@ test.describe('Upload', () => {
     await expect(page.getByRole('heading', { name: 'Your video is live' })).toBeVisible({
       timeout: 20_000,
     });
+    await expect(page.getByRole('link', { name: 'Watch your video' })).toHaveAttribute(
+      'href',
+      `/watch/${VIDEO_SLUG}`,
+    );
   });
 
   test('rejects a file with the wrong type', async ({ page }) => {

@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { isApiProblem } from '@core/http/api-problem';
 import { Subscription } from 'rxjs';
 import { DropZone } from './drop-zone/drop-zone';
@@ -37,7 +38,7 @@ const STATUS_POLL_INTERVAL_MS = 5000;
 
 @Component({
   selector: 'app-upload',
-  imports: [DropZone, MetadataForm, UploadProgress],
+  imports: [DropZone, MetadataForm, UploadProgress, RouterLink],
   templateUrl: './upload.html',
   styleUrl: './upload.scss',
 })
@@ -66,6 +67,7 @@ export class Upload {
   protected readonly processingFailed = signal<string | null>(null);
   protected readonly processingPercent = signal(0);
   protected readonly currentStep = signal<string | null>(null);
+  protected readonly publishedSlug = signal<string | null>(null);
 
   constructor() {
     const pending = this.sessionStore.load();
@@ -299,6 +301,9 @@ export class Upload {
 
         if (response.status === 'READY') {
           this.stage.set('done');
+          void this.transport.resolvePublishedSlug(videoId).then((slug) => {
+            this.publishedSlug.set(slug);
+          });
           return;
         }
         if (response.status === 'FAILED' || response.status === 'BLOCKED') {
@@ -360,6 +365,7 @@ export class Upload {
     this.processingFailed.set(null);
     this.processingPercent.set(0);
     this.currentStep.set(null);
+    this.publishedSlug.set(null);
     this.stage.set('empty');
   }
 
