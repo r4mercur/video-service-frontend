@@ -14,6 +14,7 @@ export class Header {
   private readonly router = inject(Router);
 
   protected readonly isAuthenticated = this.auth.isAuthenticated;
+  protected readonly isAdmin = this.auth.isAdmin;
   protected readonly initials = computed(() => {
     const username = this.auth.currentUser()?.username ?? '';
     return username.slice(0, 2).toUpperCase();

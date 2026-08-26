@@ -9,6 +9,9 @@
       @if (isAuthenticated()) {
         <a routerLink="/upload" routerLinkActive="header__link--active">Upload</a>
       }
+      @if (isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="header__link--active" i18n>Admin</a>
+      }
     </nav>
   </div>
   <div class="header__end">

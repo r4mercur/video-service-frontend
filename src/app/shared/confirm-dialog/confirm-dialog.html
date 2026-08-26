@@ -1,0 +1,35 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -- Backdrop-Klick zum Schließen; Escape (natives `cancel`-Event) ist das Tastatur-Äquivalent. -->
+<dialog
+  #dialogEl
+  class="confirm-dialog"
+  [attr.data-danger]="danger() ? '' : null"
+  (cancel)="onCancel()"
+  (click)="onBackdropClick($event)"
+>
+  <div class="confirm-dialog__panel">
+    <h2 class="confirm-dialog__title" i18n>{{ title() }}</h2>
+    @if (description()) {
+      <p class="confirm-dialog__description">{{ description() }}</p>
+    }
+
+    <label class="confirm-dialog__label" for="confirm-dialog-reason" i18n>Reason</label>
+    <textarea
+      id="confirm-dialog-reason"
+      class="confirm-dialog__textarea"
+      rows="3"
+      [attr.aria-invalid]="reasonInvalid() ? 'true' : null"
+      [value]="reason()"
+      (input)="onReasonInput($event)"
+    ></textarea>
+    @if (reasonInvalid()) {
+      <p class="confirm-dialog__error" role="alert" i18n>A reason is required.</p>
+    }
+
+    <div class="confirm-dialog__actions">
+      <button type="button" class="confirm-dialog__cancel" (click)="onCancel()" i18n>Cancel</button>
+      <button type="button" class="confirm-dialog__confirm" (click)="onConfirm()">
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</dialog>

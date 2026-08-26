@@ -1,0 +1,144 @@
+<main class="reports">
+  <div class="reports__intro">
+    <span class="reports__eyebrow" i18n>Admin</span>
+    <h1 class="reports__heading" i18n>Reports</h1>
+  </div>
+
+  <div ngTabs class="reports__tabs">
+    <ul
+      ngTabList
+      class="reports__tablist"
+      aria-label="Report status"
+      [selectedTab]="activeTab()"
+      (selectedTabChange)="selectTab($event)"
+    >
+      <li ngTab value="OPEN" class="reports__tab" i18n>Open</li>
+      <li ngTab value="REVIEWED" class="reports__tab" i18n>Reviewed</li>
+      <li ngTab value="DISMISSED" class="reports__tab" i18n>Dismissed</li>
+    </ul>
+
+    <div ngTabPanel [value]="activeTab()" class="reports__panel">
+      @if (actionError(); as message) {
+        <p class="reports__state reports__state--error" role="alert">{{ message }}</p>
+      }
+
+      @if (initialError(); as message) {
+        <p class="reports__state reports__state--error" role="alert">{{ message }}</p>
+      } @else if (initialLoading() && reports().length === 0) {
+        <p class="reports__state" i18n>Loading reports…</p>
+      } @else if (reports().length === 0) {
+        <p class="reports__state" i18n>No reports here.</p>
+      } @else {
+        <ul class="reports__list">
+          @for (report of reports(); track report.id) {
+            <li class="reports__row">
+              <div class="reports__row-main">
+                <a class="reports__video-title" [routerLink]="['/watch', report.videoSlug]">
+                  {{ report.videoTitle }}
+                </a>
+                <div class="reports__tags">
+                  <app-tag variant="badge" [tone]="report.status === 'OPEN' ? 'accent' : 'neutral'">
+                    {{ report.status }}
+                  </app-tag>
+                  <app-tag variant="badge" [tone]="isBlocked(report) ? 'danger' : 'success'">
+                    {{ report.videoStatus }}
+                  </app-tag>
+                </div>
+                <p class="reports__meta">
+                  <span i18n>Reported by</span> {{ report.reporterUsername }} ·
+                  {{ report.reason }}
+                  @if (report.createdAt) {
+                    · {{ report.createdAt | appRelativeTime }}
+                  }
+                </p>
+                @if (report.detail) {
+                  <p class="reports__detail">{{ report.detail }}</p>
+                }
+              </div>
+
+              <div class="reports__actions">
+                @if (canUphold(report)) {
+                  <button
+                    type="button"
+                    class="reports__action"
+                    (click)="requestAction('uphold', report)"
+                    i18n
+                  >
+                    Uphold
+                  </button>
+                }
+                @if (canDismiss(report)) {
+                  <button
+                    type="button"
+                    class="reports__action"
+                    (click)="requestAction('dismiss', report)"
+                    i18n
+                  >
+                    Dismiss
+                  </button>
+                }
+                @if (isBlocked(report)) {
+                  <button
+                    type="button"
+                    class="reports__action"
+                    (click)="requestAction('unblock', report)"
+                    i18n
+                  >
+                    Unblock
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="reports__action"
+                    (click)="requestAction('block', report)"
+                    i18n
+                  >
+                    Block
+                  </button>
+                }
+                @if (canDelete(report)) {
+                  <button
+                    type="button"
+                    class="reports__action reports__action--danger"
+                    (click)="requestAction('delete', report)"
+                    i18n
+                  >
+                    Delete video
+                  </button>
+                }
+              </div>
+            </li>
+          }
+        </ul>
+
+        @if (hasMore()) {
+          <div class="reports__load-more">
+            @if (loadMoreError(); as message) {
+              <p class="reports__state reports__state--error" role="alert">{{ message }}</p>
+            }
+            <button
+              type="button"
+              class="reports__load-more-button"
+              [disabled]="loadingMore()"
+              (click)="loadMore()"
+            >
+              {{ loadingMore() ? 'Loading…' : 'Load more' }}
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  @if (dialogMeta(); as meta) {
+    <app-confirm-dialog
+      [open]="dialogOpen()"
+      [title]="meta.title"
+      [description]="meta.description"
+      [confirmLabel]="meta.confirmLabel"
+      [danger]="meta.danger"
+      (confirmed)="confirmAction($event)"
+      (cancelled)="cancelAction()"
+    />
+  }
+</main>

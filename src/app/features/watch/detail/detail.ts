@@ -1,11 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { components } from '@core/api/schema';
+import { AuthService } from '@core/auth/auth';
 import { CategoriesService } from '@core/catalog/categories';
 import { isApiProblem } from '@core/http/api-problem';
 import { WatchProgressService } from '@core/watch-progress/watch-progress';
 import { DurationPipe } from '@shared/pipes/duration';
+import { ReportDialog, ReportPayload } from '@shared/report-dialog/report-dialog';
+import { VideoReportApi } from '../video-report-api';
 import { PlayerFrame } from './player-frame/player-frame';
 import { RecommendedRail } from './recommended-rail/recommended-rail';
 
@@ -32,13 +35,15 @@ const UNAVAILABLE_STATUS_MESSAGE: Record<string, string> = {
 
 @Component({
   selector: 'app-video-detail',
-  imports: [DatePipe, DurationPipe, PlayerFrame, RecommendedRail],
+  imports: [DatePipe, DurationPipe, PlayerFrame, RecommendedRail, ReportDialog],
   templateUrl: './detail.html',
   styleUrl: './detail.scss',
 })
 export class VideoDetail {
   private readonly categories = inject(CategoriesService);
   private readonly watchProgress = inject(WatchProgressService);
+  private readonly auth = inject(AuthService);
+  private readonly reportApi = inject(VideoReportApi);
 
   readonly slug = input.required<string>();
 
@@ -78,10 +83,57 @@ export class VideoDetail {
     return error ? this.describeError(error) : null;
   });
 
+  private readonly reportedVideoId = signal<string | null>(null);
+  protected readonly alreadyReported = computed(
+    () => this.reportedVideoId() !== null && this.reportedVideoId() === this.video.value()?.id,
+  );
+  protected readonly canReport = computed(() => {
+    const owner = this.video.value()?.ownerUsername;
+    const me = this.auth.currentUser()?.username;
+    return !(owner && me === owner);
+  });
+
+  protected readonly reportDialogOpen = signal(false);
+  protected readonly reportPending = signal(false);
+  protected readonly reportError = signal<string | null>(null);
+
+  protected openReportDialog(): void {
+    this.reportError.set(null);
+    this.reportDialogOpen.set(true);
+  }
+
+  protected closeReportDialog(): void {
+    this.reportDialogOpen.set(false);
+  }
+
+  protected async submitReport(payload: ReportPayload): Promise<void> {
+    const videoId = this.video.value()?.id;
+    if (!videoId) {
+      return;
+    }
+    this.reportPending.set(true);
+    this.reportError.set(null);
+    try {
+      await this.reportApi.submit(videoId, payload);
+      this.reportedVideoId.set(videoId);
+    } catch (error) {
+      this.reportError.set(this.describeReportError(error));
+    } finally {
+      this.reportPending.set(false);
+    }
+  }
+
   private describeError(error: unknown): string {
     if (isApiProblem(error)) {
       return error.detail ?? error.title;
     }
     return 'Could not load this video.';
+  }
+
+  private describeReportError(error: unknown): string {
+    if (isApiProblem(error)) {
+      return error.detail ?? error.title;
+    }
+    return 'Could not submit report. Please try again.';
   }
 }

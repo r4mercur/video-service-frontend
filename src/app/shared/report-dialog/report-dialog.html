@@ -1,0 +1,86 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -- Backdrop-Klick zum Schließen; Escape (natives `cancel`-Event) ist das Tastatur-Äquivalent. -->
+<dialog #dialogEl class="report-dialog" (cancel)="onCancel()" (click)="onBackdropClick($event)">
+  @if (succeeded()) {
+    <div class="report-dialog__panel report-dialog__panel--success">
+      <svg
+        class="report-dialog__success-icon"
+        viewBox="0 0 24 24"
+        width="40"
+        height="40"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" />
+        <path
+          d="M7.5 12.5l3 3 6-6.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <h2 class="report-dialog__title" i18n>Report submitted</h2>
+      <p class="report-dialog__description" i18n>
+        Thanks for letting us know. An admin will review this video shortly.
+      </p>
+      <div class="report-dialog__actions">
+        <button type="button" class="report-dialog__submit" (click)="onCancel()" i18n>Done</button>
+      </div>
+    </div>
+  } @else {
+    <div class="report-dialog__panel">
+      <h2 class="report-dialog__title" i18n>Report this video</h2>
+      <p class="report-dialog__description" i18n>
+        Let us know what's wrong. Our moderation team will review your report.
+      </p>
+
+      <label class="report-dialog__label" for="report-dialog-reason" i18n>Reason</label>
+      <select
+        id="report-dialog-reason"
+        class="report-dialog__select"
+        [value]="reason()"
+        (change)="onReasonChange($event)"
+      >
+        @for (option of reasonOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+
+      <label class="report-dialog__label" for="report-dialog-detail" i18n
+        >Additional details (optional)</label
+      >
+      <textarea
+        id="report-dialog-detail"
+        class="report-dialog__textarea"
+        rows="3"
+        [value]="detail()"
+        (input)="onDetailInput($event)"
+      ></textarea>
+
+      @if (error()) {
+        <p class="report-dialog__error" role="alert">{{ error() }}</p>
+      }
+
+      <div class="report-dialog__actions">
+        <button
+          type="button"
+          class="report-dialog__cancel"
+          [disabled]="pending()"
+          (click)="onCancel()"
+          i18n
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="report-dialog__submit"
+          [disabled]="pending()"
+          (click)="onSubmit()"
+          i18n
+        >
+          Submit report
+        </button>
+      </div>
+    </div>
+  }
+</dialog>

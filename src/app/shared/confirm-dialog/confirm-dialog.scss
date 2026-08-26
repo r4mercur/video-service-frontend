@@ -1,0 +1,116 @@
+:host {
+  display: contents;
+}
+
+.confirm-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  max-width: 28rem;
+  width: calc(100vw - var(--space-8));
+
+  &::backdrop {
+    background: rgb(0 0 0 / 60%);
+  }
+}
+
+.confirm-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.confirm-dialog__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--color-text-heading);
+}
+
+.confirm-dialog__description {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.confirm-dialog__label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.confirm-dialog__textarea {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background: var(--color-overlay-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  resize: vertical;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger-border);
+  }
+}
+
+.confirm-dialog__error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}
+
+.confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.confirm-dialog__cancel,
+.confirm-dialog__confirm {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-base);
+  padding: 0.75rem 1.375rem;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+.confirm-dialog__cancel {
+  background: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.confirm-dialog__confirm {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.confirm-dialog[data-danger] .confirm-dialog__confirm {
+  background: var(--color-danger);
+  color: var(--color-on-accent);
+}

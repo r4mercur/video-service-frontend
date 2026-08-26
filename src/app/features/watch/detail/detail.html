@@ -40,7 +40,29 @@
       </div>
 
       <aside class="detail__details">
-        <span class="detail__details-eyebrow">Details</span>
+        <div class="detail__details-header">
+          <span class="detail__details-eyebrow" i18n>Details</span>
+          @if (canReport()) {
+            <button
+              type="button"
+              class="detail__report-button"
+              [disabled]="alreadyReported()"
+              [attr.aria-label]="alreadyReported() ? 'Video reported' : 'Report this video'"
+              (click)="openReportDialog()"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  d="M5 3v18M5 4h12l-2.5 3.5L17 11H5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          }
+        </div>
         <div class="detail__details-row">
           <span>Genre</span>
           <span>{{ categoryName() }}</span>
@@ -71,5 +93,14 @@
     } @placeholder {
       <div class="detail__recommended-placeholder"></div>
     }
+
+    <app-report-dialog
+      [open]="reportDialogOpen()"
+      [pending]="reportPending()"
+      [error]="reportError()"
+      [succeeded]="alreadyReported()"
+      (submitted)="submitReport($event)"
+      (cancelled)="closeReportDialog()"
+    />
   }
 </main>

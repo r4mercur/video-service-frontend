@@ -7,4 +7,5 @@ import { Component, input } from '@angular/core';
 })
 export class Tag {
   readonly variant = input<'badge' | 'chip'>('chip');
+  readonly tone = input<'accent' | 'danger' | 'success' | 'neutral'>('accent');
 }

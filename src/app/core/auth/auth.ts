@@ -25,6 +25,7 @@ export class AuthService {
 
   readonly currentUser = this.user.asReadonly();
   readonly isAuthenticated = computed(() => this.accessToken() !== null);
+  readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
 
   /** Token nur fürs HTTP-Interceptor-Paar bestimmt, kein Konsum durch Feature-Code. */
   getAccessToken(): string | null {

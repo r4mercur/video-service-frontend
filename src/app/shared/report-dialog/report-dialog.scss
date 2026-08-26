@@ -1,0 +1,142 @@
+:host {
+  display: contents;
+}
+
+.report-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  max-width: 28rem;
+  width: calc(100vw - var(--space-8));
+
+  &::backdrop {
+    background: rgb(0 0 0 / 60%);
+  }
+}
+
+.report-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+}
+
+.report-dialog__panel--success {
+  align-items: center;
+  text-align: center;
+
+  .report-dialog__actions {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+.report-dialog__success-icon {
+  color: var(--color-success);
+}
+
+.report-dialog__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--color-text-heading);
+}
+
+.report-dialog__description {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
+.report-dialog__label {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.report-dialog__select,
+.report-dialog__textarea {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+.report-dialog__select {
+  // `--color-overlay-soft` ist ein transluzenter Weiß-Ton; Chrome liest dessen RGB-Kanäle
+  // (ohne Alpha) zur Bestimmung des Popup-Themes und rendert die native Options-Liste sonst
+  // hell statt dunkel. Deshalb hier ein deckender, tatsächlich dunkler Hintergrund nötig.
+  color-scheme: dark;
+
+  option {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+  }
+}
+
+.report-dialog__textarea {
+  resize: vertical;
+}
+
+.report-dialog__error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}
+
+.report-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.report-dialog__cancel,
+.report-dialog__submit {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-base);
+  padding: 0.75rem 1.375rem;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.report-dialog__cancel {
+  background: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.report-dialog__submit {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
