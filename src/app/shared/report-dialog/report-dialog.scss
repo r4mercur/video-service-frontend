@@ -77,9 +77,9 @@
 }
 
 .report-dialog__select {
-  // `--color-overlay-soft` ist ein transluzenter Weiß-Ton; Chrome liest dessen RGB-Kanäle
-  // (ohne Alpha) zur Bestimmung des Popup-Themes und rendert die native Options-Liste sonst
-  // hell statt dunkel. Deshalb hier ein deckender, tatsächlich dunkler Hintergrund nötig.
+  // `--color-overlay-soft` is a translucent white; Chrome reads its RGB channels
+  // (ignoring alpha) to decide the popup's theme and would otherwise render the native
+  // options list light instead of dark. Hence the need for an opaque, actually dark background.
   color-scheme: dark;
 
   option {

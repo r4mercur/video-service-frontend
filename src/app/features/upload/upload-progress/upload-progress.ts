@@ -24,10 +24,11 @@ export class UploadProgress {
   readonly paused = input(false);
   readonly step = input.required<UploadStep>();
   readonly errorMessage = input<string | null>(null);
+  readonly thumbnailWarning = input<string | null>(null);
 
   /**
-   * Prozentsatz vom Transcode-Worker (Pixelzahl-gewichtete Schätzung über die Pipeline-Stufen,
-   * kein Byte-Zähler) — deshalb während "processing" keine MB-Anzeige, nur der Balken.
+   * Percentage from the transcode worker (a pixel-count-weighted estimate across the pipeline
+   * stages, not a byte counter) — hence no MB display during "processing", just the bar.
    */
   readonly processingPercent = input<number | null>(null);
   readonly currentStep = input<string | null>(null);

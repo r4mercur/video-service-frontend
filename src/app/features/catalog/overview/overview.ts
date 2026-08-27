@@ -42,8 +42,8 @@ export class Overview {
       const page = this.initialFeed.value();
       if (page) {
         this.videos.set(page.items ?? []);
-        // Backend liefert bei fehlender nächster Seite explizit "nextCursor": null,
-        // nicht ein fehlendes Feld — auf undefined normalisieren.
+        // When there's no next page, the backend explicitly returns "nextCursor": null
+        // rather than omitting the field — normalize that to undefined.
         this.nextCursor.set(page.nextCursor ?? undefined);
       }
     });

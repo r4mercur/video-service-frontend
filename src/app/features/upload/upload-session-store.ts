@@ -32,10 +32,10 @@ export function isSessionExpired(session: PendingUploadSession): boolean {
 }
 
 /**
- * Persistiert eine laufende Upload-Session, damit ein Reload/Verbindungsabbruch fortgesetzt
- * werden kann (CLAUDE.md Abschnitt 4.3, "Client-seitiges Resume"). Das File-Handle selbst lässt
- * sich nicht persistieren — nach einem Reload muss der Nutzer dieselbe Datei erneut auswählen;
- * Name/Größe werden dann gegen die gespeicherte Session geprüft (sessionMatchesFile).
+ * Persists an in-progress upload session so a reload/connection drop can be resumed
+ * (CLAUDE.md section 4.3, "client-side resume"). The file handle itself can't be
+ * persisted — after a reload the user has to pick the same file again; name/size are
+ * then checked against the stored session (sessionMatchesFile).
  */
 @Injectable({ providedIn: 'root' })
 export class UploadSessionStore {

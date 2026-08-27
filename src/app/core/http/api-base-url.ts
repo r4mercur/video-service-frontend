@@ -3,8 +3,8 @@ import { inject } from '@angular/core';
 import { ConfigService } from '@core/config/config';
 
 /**
- * Prefixt relative /api/*-Requests mit der zur Laufzeit konfigurierten apiBaseUrl
- * (leer = same-origin, siehe public/config.json und proxy.conf.json).
+ * Prefixes relative /api/* requests with the runtime-configured apiBaseUrl
+ * (empty = same-origin, see public/config.json and proxy.conf.json).
  */
 export const apiBaseUrlInterceptor: HttpInterceptorFn = (req, next) => {
   if (!req.url.startsWith('/api/')) {

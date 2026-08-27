@@ -10,6 +10,7 @@ Diese Datei ist die verbindliche Arbeitsgrundlage für alle Änderungen in diese
 2. **Bei Unklarheiten explizit nachfragen.** Keine Annahmen treffen und stillschweigend weiterbauen. Lieber eine Rückfrage zu viel als eine falsche Implementierung.
 3. **Alternativen aufzeigen,** wenn eine gewünschte Lösung nicht den Best Practices entspricht. Entscheidung liegt beim Nutzer, aber Trade-offs müssen benannt werden (inkl. Aufwandsschätzung).
 4. **In realistische Arbeitsschritte aufteilen.** Arbeitspakete mit Aufwandsschätzung in Personentagen, damit jederzeit tiefer ins Detail gegangen werden kann.
+5. **Code und Kommentare sollten auf Englisch sein. In diesem File und der CLAUDE.md kann es deutsch bleiben**
 
 ---
 

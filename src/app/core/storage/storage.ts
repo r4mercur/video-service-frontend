@@ -2,8 +2,8 @@ import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 
 /**
- * Einziger sanktionierter Zugriffspunkt auf Browser-Storage (CLAUDE.md Abschnitt 6.1).
- * Restliche App-Code darf localStorage/sessionStorage nicht direkt anfassen.
+ * The only sanctioned access point for browser storage (CLAUDE.md section 6.1).
+ * The rest of the app code must not touch localStorage/sessionStorage directly.
  */
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -13,7 +13,7 @@ export class StorageService {
     if (!this.isBrowser) {
       return null;
     }
-    // eslint-disable-next-line no-restricted-globals -- StorageService ist die sanktionierte Ausnahme.
+    // eslint-disable-next-line no-restricted-globals -- StorageService is the sanctioned exception.
     return localStorage.getItem(key);
   }
 
@@ -21,7 +21,7 @@ export class StorageService {
     if (!this.isBrowser) {
       return;
     }
-    // eslint-disable-next-line no-restricted-globals -- StorageService ist die sanktionierte Ausnahme.
+    // eslint-disable-next-line no-restricted-globals -- StorageService is the sanctioned exception.
     localStorage.setItem(key, value);
   }
 
@@ -29,7 +29,7 @@ export class StorageService {
     if (!this.isBrowser) {
       return;
     }
-    // eslint-disable-next-line no-restricted-globals -- StorageService ist die sanktionierte Ausnahme.
+    // eslint-disable-next-line no-restricted-globals -- StorageService is the sanctioned exception.
     localStorage.removeItem(key);
   }
 }

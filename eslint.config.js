@@ -4,12 +4,12 @@ const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
 
 const restrictedGlobalsMessage =
-  'SSR-Regel (CLAUDE.md Abschnitt 6.1): Kein direkter Zugriff auf Browser-Globals. ' +
-  'Nutze DOCUMENT-Token, isPlatformBrowser() oder den StorageService.';
+  'SSR rule (CLAUDE.md section 6.1): no direct access to browser globals. ' +
+  'Use the DOCUMENT token, isPlatformBrowser(), or StorageService instead.';
 
 module.exports = tseslint.config(
   {
-    // Generiert via `npm run generate:api` — nicht Ziel unserer Stilregeln.
+    // Generated via `npm run generate:api` — not subject to our style rules.
     ignores: ['src/app/core/api/schema.ts'],
   },
   {

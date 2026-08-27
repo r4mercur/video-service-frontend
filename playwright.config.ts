@@ -1,17 +1,17 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * E2E gegen den echten Dev-Server (proxy.conf.json leitet /api an das lokale Spring-Boot-Backend
- * auf localhost:8080 weiter — siehe CLAUDE.md Abschnitt 8). Das Backend muss vor `npm run e2e`
- * separat laufen; nur die presigned-Storage-PUTs werden in den Tests selbst gemockt.
+ * E2E runs against the real dev server (proxy.conf.json forwards /api to the local Spring
+ * Boot backend on localhost:8080 — see CLAUDE.md section 8). The backend must be running
+ * separately before `npm run e2e`; only the presigned storage PUTs are mocked in the tests themselves.
  */
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: !!process.env['CI'],
   retries: process.env['CI'] ? 2 : 0,
-  // Der Upload-Flow braucht mehrere Status-Polls (5s-Intervall) plus mehrere `toPass`-Retries
-  // beim Formular-Tippen — der Playwright-Default von 30s ist dafür zu knapp bemessen.
+  // The upload flow needs several status polls (5s interval) plus several `toPass` retries
+  // while typing into forms — Playwright's default of 30s is too tight for that.
   timeout: 60_000,
   reporter: 'html',
   use: {

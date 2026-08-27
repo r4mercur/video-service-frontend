@@ -9,6 +9,7 @@ export type UploadPartUrl = components['schemas']['UploadPartUrl'];
 export type CompletedPartDto = components['schemas']['CompletedPartDto'];
 export type VideoStatusResponse = components['schemas']['VideoStatusResponse'];
 export type CursorPageVideoDetailDto = components['schemas']['CursorPageVideoDetailDto'];
+export type VideoDetailDto = components['schemas']['VideoDetailDto'];
 
 /** Signals a deliberate abort (Pause/Cancel) — callers must not treat this as a failed upload. */
 export class UploadAbortedError extends Error {
@@ -23,23 +24,29 @@ export type PartUploadEvent =
 
 /**
  * Abstracts the byte transport away from the upload wizard so the confirmed presigned
- * Direct-Upload variant (CLAUDE.md Abschnitt 12) could later be swapped for another
- * transport without touching the UI layer (CLAUDE.md Abschnitt 4.3).
+ * direct-upload variant (CLAUDE.md section 12) could later be swapped for another
+ * transport without touching the UI layer (CLAUDE.md section 4.3).
  */
 export interface UploadTransport {
   initiate(request: InitiateUploadRequest): Promise<InitiateUploadResponse>;
   uploadPart(url: string, contentType: string, blob: Blob): Observable<PartUploadEvent>;
   complete(videoId: string, parts: CompletedPartDto[]): Promise<void>;
   status(videoId: string): Promise<VideoStatusResponse>;
-  /** VideoStatusResponse liefert keinen slug — für den Link zum fertigen Video wird er hier über die eigene Videoliste aufgelöst. */
+  /** VideoStatusResponse doesn't return a slug — for the link to the finished video it's resolved here via the own video list. */
   resolvePublishedSlug(videoId: string): Promise<string | null>;
+  /**
+   * Needs the videoId from `initiate()` — can therefore only be called after the metadata
+   * step, not before. Despite `application/json` in the OpenAPI spec (a Springdoc artifact for
+   * `MultipartFile` parameters), the real request is `multipart/form-data` with field name `file`.
+   */
+  setThumbnail(videoId: string, file: File): Promise<VideoDetailDto>;
 }
 
 /**
- * Presigned-URL-Parts gehen direkt an den Object Store, nicht durchs Backend — deshalb hier
- * bewusst rohes XMLHttpRequest statt HttpClient: XHR liefert echte upload-progress-Events und
- * lässt sich per unsubscribe/abort() sofort abbrechen (Pause/Cancel), ohne dass Angulars
- * Interceptor-Kette (Bearer-Token, XSRF) an einer fremden Origin mitschreiben könnte.
+ * Presigned-URL parts go straight to the object store, not through the backend — hence the
+ * deliberate use of raw XMLHttpRequest instead of HttpClient here: XHR delivers real
+ * upload-progress events and can be aborted immediately via unsubscribe/abort() (pause/cancel),
+ * without Angular's interceptor chain (bearer token, XSRF) writing along to a foreign origin.
  */
 @Injectable({ providedIn: 'root' })
 export class PresignedUploadTransport implements UploadTransport {
@@ -101,5 +108,13 @@ export class PresignedUploadTransport implements UploadTransport {
   async resolvePublishedSlug(videoId: string): Promise<string | null> {
     const page = await firstValueFrom(this.http.get<CursorPageVideoDetailDto>('/api/me/videos'));
     return page.items?.find((video) => video.id === videoId)?.slug ?? null;
+  }
+
+  async setThumbnail(videoId: string, file: File): Promise<VideoDetailDto> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return firstValueFrom(
+      this.http.put<VideoDetailDto>(`/api/videos/${videoId}/thumbnail`, formData),
+    );
   }
 }

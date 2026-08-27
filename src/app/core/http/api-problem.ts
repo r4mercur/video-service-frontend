@@ -1,6 +1,6 @@
 /**
- * RFC 7807 (application/problem+json), wie vom Backend ausgeliefert
- * (verifiziert gegen GET /v3/api-docs und echte 400/401-Antworten, 2026-08-22).
+ * RFC 7807 (application/problem+json), as served by the backend
+ * (verified against GET /v3/api-docs and real 400/401 responses, 2026-08-22).
  */
 export interface ApiProblem {
   type?: string;

@@ -2,6 +2,7 @@ import { Component, input, output, signal } from '@angular/core';
 import { FormField, form, maxLength, required, schema } from '@angular/forms/signals';
 import { Button } from '@shared/button/button';
 import { CategorySelect } from '../category-select/category-select';
+import { ThumbnailPicker } from '../thumbnail-picker/thumbnail-picker';
 
 export type VideoVisibility = 'PUBLIC' | 'PRIVATE';
 
@@ -10,6 +11,7 @@ export interface UploadMetadata {
   categoryId: number;
   visibility: VideoVisibility;
   description?: string;
+  thumbnailFile?: File;
 }
 
 interface MetadataFormValue {
@@ -27,13 +29,13 @@ const metadataSchema = schema<MetadataFormValue>((path) => {
 });
 
 /**
- * Metadaten müssen feststehen, bevor `initiate` aufgerufen werden kann — der Contract kennt
- * kein nachträgliches Update (siehe Implementierungsplan). Sichtbarkeit ist im Mockup nicht
- * dargestellt, aber vom Backend zwingend gefordert; Default ist "Public".
+ * Metadata must be locked in before `initiate` can be called — the contract has no
+ * update-afterward path (see implementation plan). Visibility isn't shown in the mockup
+ * but is required by the backend; the default is "Public".
  */
 @Component({
   selector: 'app-metadata-form',
-  imports: [FormField, CategorySelect, Button],
+  imports: [FormField, CategorySelect, ThumbnailPicker, Button],
   templateUrl: './metadata-form.html',
   styleUrl: './metadata-form.scss',
 })
@@ -49,6 +51,9 @@ export class MetadataForm {
     description: '',
   });
   protected readonly metadataForm = form(this.formValue, metadataSchema);
+
+  protected readonly thumbnailFile = signal<File | null>(null);
+  protected readonly thumbnailError = signal<string | null>(null);
 
   protected setVisibility(visibility: VideoVisibility): void {
     this.metadataForm.visibility().value.set(visibility);
@@ -67,6 +72,7 @@ export class MetadataForm {
       categoryId: categoryId as number,
       visibility,
       description: description || undefined,
+      thumbnailFile: this.thumbnailFile() ?? undefined,
     });
   }
 }

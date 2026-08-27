@@ -56,6 +56,16 @@
   </div>
 
   <div class="metadata-form__field">
+    <span class="metadata-form__label">
+      Custom thumbnail <span class="metadata-form__optional">(optional)</span>
+    </span>
+    <app-thumbnail-picker [(file)]="thumbnailFile" (rejected)="thumbnailError.set($event)" />
+    @if (thumbnailError(); as message) {
+      <span class="metadata-form__error">{{ message }}</span>
+    }
+  </div>
+
+  <div class="metadata-form__field">
     <label for="upload-description">Description</label>
     <textarea
       id="upload-description"

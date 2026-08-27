@@ -49,8 +49,8 @@ export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  // Von authGuard beim Redirect gesetzt (siehe core/auth/auth-guard.ts); ohne Query-Param
-  // greift der Default.
+  // Set by authGuard on redirect (see core/auth/auth-guard.ts); without a query param
+  // the default kicks in.
   readonly returnUrl = input<string>('/catalog');
 
   protected readonly mode = signal<AuthMode>('login');

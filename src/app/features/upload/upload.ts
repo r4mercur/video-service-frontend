@@ -63,6 +63,7 @@ export class Upload {
   protected readonly speedBytesPerSecond = signal(0);
   protected readonly paused = signal(false);
   protected readonly uploadError = signal<string | null>(null);
+  protected readonly thumbnailWarning = signal<string | null>(null);
 
   protected readonly processingFailed = signal<string | null>(null);
   protected readonly processingPercent = signal(0);
@@ -127,6 +128,7 @@ export class Upload {
 
     this.submittingMetadata.set(true);
     this.metadataError.set(null);
+    this.thumbnailWarning.set(null);
     try {
       const response = await this.transport.initiate({
         title: metadata.title,
@@ -153,6 +155,20 @@ export class Upload {
         metadata,
       };
       this.persistSession();
+
+      if (metadata.thumbnailFile) {
+        // The video already exists (initiate() went through) — a failed thumbnail upload
+        // must not block the rest of the flow, the backend falls back to the
+        // auto-generated thumbnail otherwise.
+        try {
+          await this.transport.setThumbnail(response.videoId, metadata.thumbnailFile);
+        } catch (error) {
+          this.thumbnailWarning.set(
+            `Custom thumbnail couldn't be saved (${this.describeError(error)}) — using the auto-generated one instead.`,
+          );
+        }
+      }
+
       this.loadedBytes.set(0);
       this.speedSamples = [];
       this.paused.set(false);
@@ -260,7 +276,7 @@ export class Upload {
         },
         error: (error: unknown) => {
           if (error instanceof UploadAbortedError) {
-            // Pause/Cancel hat den Abbruch selbst ausgelöst — kein Fehlerzustand.
+            // Pause/Cancel triggered the abort itself — not an error state.
             return;
           }
           this.uploadError.set(this.describeError(error));
@@ -294,8 +310,8 @@ export class Upload {
     const poll = async () => {
       try {
         const response = await this.transport.status(videoId);
-        // progressPercent ist eine Pixelzahl-gewichtete Schätzung des Transcode-Workers über
-        // die Pipeline-Stufen, kein Byte-Zähler — deshalb zeigt die UI dazu keine MB-Werte.
+        // progressPercent is a pixel-count-weighted estimate from the transcode worker across
+        // the pipeline stages, not a byte counter — that's why the UI shows no MB values for it.
         this.processingPercent.set(response.progressPercent ?? 0);
         this.currentStep.set(response.currentStep ?? null);
 
@@ -312,7 +328,7 @@ export class Upload {
           return;
         }
       } catch {
-        // Netzwerk-Hänger beim Polling sind kein Grund abzubrechen — einfach erneut versuchen.
+        // A network hiccup during polling is not a reason to stop — just try again.
       }
       this.pollTimer = setTimeout(() => void poll(), STATUS_POLL_INTERVAL_MS);
     };
@@ -361,6 +377,7 @@ export class Upload {
     this.speedBytesPerSecond.set(0);
     this.paused.set(false);
     this.uploadError.set(null);
+    this.thumbnailWarning.set(null);
     this.metadataError.set(null);
     this.processingFailed.set(null);
     this.processingPercent.set(0);

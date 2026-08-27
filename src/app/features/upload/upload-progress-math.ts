@@ -1,4 +1,4 @@
-/** Größe eines einzelnen Parts — der letzte Part ist meist kleiner als `partSize`. */
+/** Size of a single part — the last part is usually smaller than `partSize`. */
 export function partByteSize(
   partNumber: number,
   totalParts: number,
@@ -17,7 +17,7 @@ export interface SpeedSample {
   readonly loadedBytes: number;
 }
 
-/** Gleitender Durchsatz über die letzten `windowMs`, statt eines verzerrenden Gesamt-Durchschnitts. */
+/** Rolling throughput over the last `windowMs`, instead of a skewed overall average. */
 export function bytesPerSecond(samples: readonly SpeedSample[], windowMs = 5000): number {
   if (samples.length < 2) {
     return 0;

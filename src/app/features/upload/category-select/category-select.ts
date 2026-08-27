@@ -20,10 +20,10 @@ interface SelectableCategory {
 }
 
 /**
- * Genre-Auswahl als Button + Popup-Listbox (Angular Aria `ngListbox`/`ngOption`), damit die
- * Optik zu 100% eigenes SCSS bleibt und nur das a11y-Verhalten (Tastatur-Navigation,
- * Fokus-Handling, ARIA-Attribute) von Aria kommt — siehe CLAUDE.md Abschnitt 4.2/12.
- * Implementiert `FormValueControl`, damit `[formField]` direkt wie bei nativen Inputs greift.
+ * Genre selection as a button + popup listbox (Angular Aria `ngListbox`/`ngOption`), so the
+ * visuals stay 100% custom SCSS and only the a11y behavior (keyboard navigation,
+ * focus handling, ARIA attributes) comes from Aria — see CLAUDE.md section 4.2/12.
+ * Implements `FormValueControl` so `[formField]` applies directly, just like native inputs.
  */
 @Component({
   selector: 'app-category-select',

@@ -47,6 +47,13 @@
   color: var(--color-danger-text);
 }
 
+.upload-progress__notice {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+}
+
 .upload-progress__card {
   display: flex;
   flex-direction: column;

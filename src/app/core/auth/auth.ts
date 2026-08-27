@@ -10,7 +10,7 @@ export type UserResponse = components['schemas']['UserResponse'];
 
 function requireAccessToken(response: AccessTokenResponse): string {
   if (!response.accessToken) {
-    throw new Error('Auth-Antwort enthielt keinen accessToken.');
+    throw new Error('Auth response did not contain an accessToken.');
   }
   return response.accessToken;
 }
@@ -27,7 +27,7 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.accessToken() !== null);
   readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
 
-  /** Token nur fürs HTTP-Interceptor-Paar bestimmt, kein Konsum durch Feature-Code. */
+  /** Token is only for the HTTP interceptor pair — not meant to be consumed by feature code. */
   getAccessToken(): string | null {
     return this.accessToken();
   }
@@ -44,7 +44,7 @@ export class AuthService {
   async register(email: string, username: string, password: string): Promise<void> {
     const body: RegisterRequest = { email, username, password };
     await firstValueFrom(this.http.post<UserResponse>('/api/auth/register', body));
-    // Registrierung liefert noch keinen Access-Token — direkt im Anschluss einloggen.
+    // Registration doesn't return an access token yet — log in right after.
     await this.login(username, password);
   }
 
@@ -56,7 +56,7 @@ export class AuthService {
     }
   }
 
-  /** Wird beim App-Start aufgerufen: versucht, eine Session aus dem Refresh-Cookie wiederherzustellen. */
+  /** Called on app start: tries to restore a session from the refresh cookie. */
   async restoreSession(): Promise<void> {
     try {
       await this.refreshAccessToken();
@@ -66,7 +66,7 @@ export class AuthService {
     }
   }
 
-  /** Dedupliziert parallele Refresh-Versuche (z. B. mehrere 401s gleichzeitig). */
+  /** Deduplicates concurrent refresh attempts (e.g. several 401s at once). */
   refreshAccessToken(): Promise<string> {
     if (!this.refreshInFlight) {
       this.refreshInFlight = this.performRefresh().finally(() => {

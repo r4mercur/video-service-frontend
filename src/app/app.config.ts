@@ -20,8 +20,8 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding()),
     provideHttpClient(
       withXsrfConfiguration({}),
-      // Reihenfolge ist bewusst: authRefresh muss den rohen HttpErrorResponse VOR dem
-      // errorInterceptor sehen, sonst hat er nur noch das normalisierte ApiProblem.
+      // Order is deliberate: authRefresh needs to see the raw HttpErrorResponse BEFORE
+      // errorInterceptor, otherwise it only gets the normalized ApiProblem.
       withInterceptors([
         apiBaseUrlInterceptor,
         errorInterceptor,
@@ -29,9 +29,9 @@ export const appConfig: ApplicationConfig = {
         authRefreshInterceptor,
       ]),
     ),
-    // Sequenziell statt zwei parallele Initializer: Auth braucht die geladene apiBaseUrl.
-    // inject() muss synchron VOR dem ersten await passieren (NG0203), daher beide Services
-    // zuerst auflösen und erst danach die async-Kette anstoßen.
+    // Sequential instead of two parallel initializers: Auth needs the loaded apiBaseUrl.
+    // inject() must happen synchronously BEFORE the first await (NG0203), so both services
+    // are resolved first and only then the async chain is kicked off.
     provideAppInitializer(() => {
       const config = inject(ConfigService);
       const auth = inject(AuthService);

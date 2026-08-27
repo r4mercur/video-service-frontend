@@ -5,7 +5,7 @@ import { components } from '@core/api/schema';
 export type CategoryDto = components['schemas']['CategoryDto'];
 
 /**
- * Kategorien ändern sich selten — ein geteilter Resource-Fetch statt einer pro Feature.
+ * Categories change rarely — one shared resource fetch instead of one per feature.
  */
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {

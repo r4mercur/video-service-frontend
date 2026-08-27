@@ -4,9 +4,9 @@ import { AuthService } from '@core/auth/auth';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 
 /**
- * Bei 401 auf einem authentifizierten Request: einmal versuchen, den Access-Token per
- * Refresh-Cookie zu erneuern, und den Request mit dem neuen Token wiederholen.
- * Auth-Endpunkte selbst sind ausgenommen, um Refresh-Loops zu vermeiden.
+ * On a 401 for an authenticated request: try once to renew the access token via the
+ * refresh cookie, then retry the request with the new token.
+ * Auth endpoints themselves are excluded to avoid refresh loops.
  */
 export const authRefreshInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.url.includes('/api/auth/')) {

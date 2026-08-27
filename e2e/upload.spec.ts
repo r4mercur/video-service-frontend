@@ -1,31 +1,31 @@
 import { Locator, Page, expect, test } from '@playwright/test';
 
 /**
- * Auth (register/login) läuft gegen das echte lokale Backend, wie in AP 3 verifiziert.
- * Alles rund um den Video-Upload selbst (initiate/complete/status + die presigned Storage-PUTs)
- * wird hier gemockt: ein echter Object-Store mit passender CORS-Konfiguration (Access-Control-
- * Expose-Headers: ETag) kann in einer lokalen Dev-Umgebung nicht vorausgesetzt werden, und der
- * Backend-`complete`-Call würde gegen echtes MinIO/Garage ohnehin fehlschlagen, wenn die Bytes
- * (wie hier) nie wirklich ankommen. Das UI-Verhalten (Zustände, Fortschritt, Step-Tracker) ist
- * damit trotzdem end-to-end abgedeckt.
+ * Auth (register/login) runs against the real local backend, as verified in AP 3.
+ * Everything around the video upload itself (initiate/complete/status + the presigned storage
+ * PUTs) is mocked here: a real object store with matching CORS configuration (Access-Control-
+ * Expose-Headers: ETag) can't be assumed in a local dev environment, and the backend's
+ * `complete` call would fail against real MinIO/Garage anyway if the bytes (as here) never
+ * actually arrive. The UI behavior (states, progress, step tracker) is still covered
+ * end-to-end regardless.
  */
 
 const VIDEO_ID = 'e2e-fake-video-id';
 const VIDEO_SLUG = 'e2e-test-clip';
 const PART_URL = 'https://mock-storage.e2e.local/part-1';
 
-// Fest angelegter Test-Account statt Registrierung pro Lauf — das lokale Backend limitiert
-// /api/auth/register pro Zeitfenster, was wiederholte lokale Testläufe unzuverlässig machte.
-// Der Account muss vorab existieren (siehe Backend-Testdaten/-Seed).
+// Fixed test account instead of registering per run — the local backend rate-limits
+// /api/auth/register per time window, which made repeated local test runs unreliable.
+// The account must already exist (see backend test data/seed).
 const TEST_USER = {
   identifier: 'testuser',
   password: 'Test1234!',
 };
 
-// Sowohl `.fill()` als auch `.pressSequentially()` lassen ein Feld gelegentlich leer, wenn
-// Chromium wegen `type="email"`/`autocomplete` eine Autofill-Vorschlagsleiste einblendet, die
-// mit der Eingabe kollidiert. `toPass` macht das robust, statt die Ursache in fremdem Auth-Code
-// zu jagen.
+// Both `.fill()` and `.pressSequentially()` occasionally leave a field empty when Chromium
+// shows an autofill suggestion dropdown (due to `type="email"`/`autocomplete`) that collides
+// with the input. `toPass` makes this robust instead of chasing the root cause through
+// third-party auth code.
 async function typeReliably(locator: Locator, value: string): Promise<void> {
   await expect(async () => {
     await locator.fill('');
@@ -38,7 +38,7 @@ async function login(page: Page): Promise<void> {
   await page.goto('/auth');
   await typeReliably(page.getByLabel('Email or username'), TEST_USER.identifier);
   await typeReliably(page.getByLabel('Password'), TEST_USER.password);
-  // "Log in" ist sowohl der Tab-Button als auch der Submit-Button — über [type=submit] eindeutig.
+  // "Log in" is both the tab button and the submit button — [type=submit] disambiguates.
   await page.locator('button[type="submit"]').click();
   await expect(page).toHaveURL(/\/catalog/);
 }
@@ -117,6 +117,28 @@ async function mockUploadBackend(page: Page): Promise<void> {
   });
 }
 
+/** Custom thumbnail endpoint mocked separately, since not every test should hit it. */
+async function mockThumbnailRoute(page: Page, status: 200 | 400): Promise<() => number> {
+  let calls = 0;
+  await page.route(`**/api/videos/${VIDEO_ID}/thumbnail`, async (route) => {
+    calls++;
+    if (status === 200) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ id: VIDEO_ID, hasCustomThumbnail: true }),
+      });
+      return;
+    }
+    await route.fulfill({
+      status: 400,
+      contentType: 'application/json',
+      body: JSON.stringify({ title: 'Invalid image', detail: 'Not a supported image.' }),
+    });
+  });
+  return () => calls;
+}
+
 test.describe('Upload', () => {
   test('drop zone → metadata → transfer → published', async ({ page }) => {
     await mockUploadBackend(page);
@@ -167,5 +189,77 @@ test.describe('Upload', () => {
 
     await expect(page.getByText('Please choose an MP4, MOV or WebM file.')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Add a video' })).toBeVisible();
+  });
+
+  async function selectVideoAndReachMetadataStep(page: Page): Promise<void> {
+    await page.getByRole('link', { name: 'Upload', exact: true }).click();
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'clip.mp4',
+      mimeType: 'video/mp4',
+      buffer: Buffer.alloc(2_000_000, 1),
+    });
+    await expect(page.getByRole('heading', { name: 'Add a few details' })).toBeVisible();
+    await typeReliably(page.getByLabel('Title'), 'E2E Test Clip');
+    await page.getByRole('button', { name: 'Select a genre' }).click();
+    await page.getByRole('option', { name: 'Drama' }).click();
+  }
+
+  test('uploads a custom thumbnail alongside the video', async ({ page }) => {
+    await mockUploadBackend(page);
+    const thumbnailCalls = await mockThumbnailRoute(page, 200);
+    await login(page);
+
+    await selectVideoAndReachMetadataStep(page);
+    // The drop-zone input is unmounted at the "metadata" stage, so this is unambiguously the thumbnail input.
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'cover.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.alloc(50_000, 2),
+    });
+    await expect(page.getByRole('button', { name: 'Change image' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Start upload' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Your video is live' })).toBeVisible({
+      timeout: 20_000,
+    });
+    expect(thumbnailCalls()).toBe(1);
+  });
+
+  test('continues the upload even if the custom thumbnail save fails', async ({ page }) => {
+    await mockUploadBackend(page);
+    await mockThumbnailRoute(page, 400);
+    await login(page);
+
+    await selectVideoAndReachMetadataStep(page);
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'cover.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.alloc(50_000, 2),
+    });
+    await page.getByRole('button', { name: 'Start upload' }).click();
+
+    await expect(page.getByText(/Custom thumbnail couldn't be saved/)).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByRole('heading', { name: 'Your video is live' })).toBeVisible({
+      timeout: 20_000,
+    });
+  });
+
+  test('rejects an oversized custom thumbnail image', async ({ page }) => {
+    await mockUploadBackend(page);
+    await login(page);
+
+    await selectVideoAndReachMetadataStep(page);
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'huge.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.alloc(8_000_001, 2),
+    });
+
+    await expect(page.getByText('This image is larger than 8 MB.')).toBeVisible();
+    // Start upload remains possible — the thumbnail is optional, only the invalid attempt was discarded.
+    await expect(page.getByRole('button', { name: 'Choose image' })).toBeVisible();
   });
 });

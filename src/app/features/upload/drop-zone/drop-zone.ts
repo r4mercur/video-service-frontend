@@ -1,12 +1,12 @@
 import { Component, ElementRef, output, signal, viewChild } from '@angular/core';
 
 const ACCEPTED_TYPES = new Set(['video/mp4', 'video/quicktime', 'video/webm']);
-const MAX_BYTES = 8_000_000_000; // "up to 8 GB" laut Mockup-Copy
+const MAX_BYTES = 8_000_000_000; // "up to 8 GB" per the mockup copy
 
 /**
- * Rein präsentational: validiert nur Typ/Größe und reicht die Datei nach oben durch.
- * Drag&Drop-Events sind Template-Bindings, die nur bei echter Nutzerinteraktion feuern —
- * kein Konflikt mit der SSR-Regel gegen DOM-Zugriff in Constructor/ngOnInit (CLAUDE.md 6.2).
+ * Purely presentational: only validates type/size and passes the file up.
+ * Drag&drop events are template bindings that only fire on real user interaction —
+ * no conflict with the SSR rule against DOM access in the constructor/ngOnInit (CLAUDE.md 6.2).
  */
 @Component({
   selector: 'app-drop-zone',

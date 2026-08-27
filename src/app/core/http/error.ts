@@ -3,8 +3,8 @@ import { catchError, throwError } from 'rxjs';
 import { isApiProblem } from './api-problem';
 
 /**
- * Reicht bei einer application/problem+json-Antwort direkt das typisierte ApiProblem durch,
- * statt dass jeder Aufrufer selbst in HttpErrorResponse.error greifen muss.
+ * On an application/problem+json response, passes the typed ApiProblem through directly,
+ * instead of every caller having to reach into HttpErrorResponse.error themselves.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) =>
   next(req).pipe(

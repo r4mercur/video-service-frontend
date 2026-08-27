@@ -9,9 +9,9 @@ interface StoredProgress {
 const STORAGE_KEY = 'watch-progress';
 
 /**
- * Client-lokales Wiedergabe-Tracking (localStorage), da es dafür noch keine Backend-API gibt
- * (siehe CLAUDE.md Abschnitt 12). Wird vom Player bei gedrosseltem `timeupdate` sowie
- * `beforeunload` beschrieben (`player-frame.ts`).
+ * Client-local playback tracking (localStorage), since there's no backend API for this yet
+ * (see CLAUDE.md section 12). Written by the player on throttled `timeupdate` as well as
+ * `beforeunload` (`player-frame.ts`).
  */
 @Injectable({ providedIn: 'root' })
 export class WatchProgressService {

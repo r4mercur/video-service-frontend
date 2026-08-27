@@ -36,7 +36,7 @@ describe('bytesPerSecond', () => {
       { atMs: 10_000, loadedBytes: 5_000_000 },
       { atMs: 11_000, loadedBytes: 6_000_000 },
     ];
-    // Nur die letzten 5s zählen: von 10_000 (5_000_000) bis 11_000 (6_000_000) => 1_000_000 B/s.
+    // Only the last 5s count: from 10_000 (5_000_000) to 11_000 (6_000_000) => 1_000_000 B/s.
     expect(bytesPerSecond(samples, 5000)).toBe(1_000_000);
   });
 
