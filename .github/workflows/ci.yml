@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run test:ci
+
+      - run: npm run build
+
+# Playwright E2E is deliberately not part of this workflow yet - it needs a running backend
+# instance as a fixture, which is a bigger piece of infra than this CI gate. See the video-service
+# repo's Hetzner infra plan for context; add a separate e2e job here once that's in place.

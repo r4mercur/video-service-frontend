@@ -1,0 +1,59 @@
+name: Release
+
+# Deploy is manual, not automatic on merge: pushing a tag is the explicit "ship this" action -
+# mirrors the backend repo's release workflow.
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:ci
+      - run: npm run build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browser-dist
+          path: dist/video-service-frontend/browser/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: browser-dist
+          path: browser-dist
+
+      # Plain OpenSSH, no marketplace SSH action - see the same rationale in the backend repo's
+      # release.yml.
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.HETZNER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
+
+      # HETZNER_SSH_KEY/HETZNER_HOST are the same server and the same restricted "deploy" user
+      # the backend repo uses (one server, one deploy account for both repos). That account has
+      # no shell - only rsync into /opt/video-service/incoming/frontend, then the fixed
+      # "deploy frontend" trigger, which atomically syncs incoming/frontend into frontend-dist/
+      # (see video-service/infra/deploy.sh).
+      - name: Upload build
+        run: |
+          rsync -e "ssh -i ~/.ssh/deploy_key" -a --delete browser-dist/ deploy@"${{ secrets.HETZNER_HOST }}":frontend/
+
+      - name: Publish
+        run: |
+          ssh -i ~/.ssh/deploy_key deploy@"${{ secrets.HETZNER_HOST }}" "deploy frontend"
