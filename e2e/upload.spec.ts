@@ -1,4 +1,5 @@
-import { Locator, Page, expect, test } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { expect, test } from './support/fixtures';
 
 /**
  * Auth (register/login) runs against the real local backend, as verified in AP 3.

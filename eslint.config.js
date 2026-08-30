@@ -26,6 +26,14 @@ module.exports = tseslint.config(
       '@angular-eslint/directive-class-suffix': 'off',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/ban-ts-comment': 'error',
+    },
+  },
+  {
+    // The SSR rule (CLAUDE.md section 6.1) only applies to app source that could run on the
+    // server. Playwright callbacks (e.g. `page.addInitScript`) execute in the browser page
+    // context, never in our app bundle, so browser globals there are expected and safe.
+    files: ['src/**/*.ts'],
+    rules: {
       'no-restricted-globals': [
         'error',
         { name: 'window', message: restrictedGlobalsMessage },

@@ -1,1 +1,6 @@
 <router-outlet />
+<app-age-gate-dialog
+  [open]="!ageGate.confirmed()"
+  (confirmed)="ageGate.confirm()"
+  (declined)="ageGate.decline()"
+/>
