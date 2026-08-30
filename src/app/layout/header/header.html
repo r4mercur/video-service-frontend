@@ -5,12 +5,22 @@
       <span class="header__wordmark">sol-stream</span>
     </a>
     <nav class="header__nav" aria-label="Main">
-      <a routerLink="/catalog" routerLinkActive="header__link--active">Browse</a>
+      <a routerLink="/catalog" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
+        >Browse</a
+      >
       @if (isAuthenticated()) {
-        <a routerLink="/upload" routerLinkActive="header__link--active">Upload</a>
+        <a routerLink="/upload" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
+          >Upload</a
+        >
       }
       @if (isAdmin()) {
-        <a routerLink="/admin" routerLinkActive="header__link--active" i18n>Admin</a>
+        <a
+          routerLink="/admin"
+          routerLinkActive="header__link--active"
+          ariaCurrentWhenActive="page"
+          i18n
+          >Admin</a
+        >
       }
     </nav>
   </div>

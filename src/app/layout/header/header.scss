@@ -69,16 +69,20 @@
 
   a {
     color: var(--color-text-secondary);
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
+
+    &.header__link--active {
+      color: var(--color-accent-text);
+      font-weight: 700;
+    }
   }
 
   @include respond-up(sm) {
     gap: var(--space-6);
   }
-}
-
-.header__link--active {
-  color: var(--color-text-primary);
-  font-weight: 500;
 }
 
 .header__end {
