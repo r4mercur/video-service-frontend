@@ -1,7 +1,7 @@
 // Design tokens as CSS custom properties (not Sass variables), so that
 // runtime theming via [data-theme] + prefers-color-scheme works without a second build.
 //
-// Source: Streambox mockups (claude.ai/design). Currently dark only, since no light
+// Source: sol-stream mockups (claude.ai/design). Currently dark only, since no light
 // mockup exists yet. Once a light design exists, a second block goes under
 // [data-theme="light"] / @media (prefers-color-scheme: light).
 
