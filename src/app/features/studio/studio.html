@@ -1,0 +1,115 @@
+<main class="studio">
+  <div class="studio__intro">
+    <span class="studio__eyebrow" i18n>Studio</span>
+    <h1 class="studio__heading" i18n>My videos</h1>
+  </div>
+
+  @if (deleteError(); as message) {
+    <p class="studio__state studio__state--error" role="alert">{{ message }}</p>
+  }
+  @if (visibilityError(); as message) {
+    <p class="studio__state studio__state--error" role="alert">{{ message }}</p>
+  }
+
+  @if (initialError(); as message) {
+    <p class="studio__state studio__state--error" role="alert">{{ message }}</p>
+  } @else if (initialLoading() && videos().length === 0) {
+    <p class="studio__state" i18n>Loading your videos…</p>
+  } @else if (videos().length === 0) {
+    <div class="studio__empty">
+      <h2 i18n>Nothing here yet</h2>
+      <p i18n>You haven't uploaded any videos yet.</p>
+      <a class="studio__empty-cta" routerLink="/upload" i18n>Upload a video</a>
+    </div>
+  } @else {
+    <ul class="studio__list">
+      @for (video of videos(); track video.id) {
+        <li class="studio__row">
+          <div class="studio__thumb">
+            @if (video.thumbnailUrl; as thumbnailUrl) {
+              <img [src]="thumbnailUrl" [alt]="video.title ?? ''" loading="lazy" />
+            } @else {
+              <span class="studio__thumb-label" i18n>THUMBNAIL</span>
+            }
+            @if (video.durationSeconds) {
+              <span class="studio__duration">{{ video.durationSeconds | appDuration }}</span>
+            }
+          </div>
+
+          <div class="studio__row-main">
+            @if (video.status === 'READY' && video.slug) {
+              <a class="studio__video-title" [routerLink]="['/watch', video.slug]">
+                {{ video.title }}
+              </a>
+            } @else {
+              <span class="studio__video-title studio__video-title--static">{{ video.title }}</span>
+            }
+            <div class="studio__tags">
+              <app-tag variant="badge" [tone]="statusTone(video.status)">{{
+                video.status
+              }}</app-tag>
+              <app-tag variant="badge" tone="neutral">{{ video.visibility }}</app-tag>
+            </div>
+            <p class="studio__meta">
+              {{ categoryName(video) }}
+              @if (video.createdAt) {
+                · {{ video.createdAt | appRelativeTime }}
+              }
+            </p>
+          </div>
+
+          <div class="studio__actions">
+            <button
+              type="button"
+              class="studio__action"
+              [disabled]="visibilityPending() === video.id"
+              (click)="toggleVisibility(video)"
+            >
+              @if (video.visibility === 'PUBLIC') {
+                <ng-container i18n>Make private</ng-container>
+              } @else {
+                <ng-container i18n>Make public</ng-container>
+              }
+            </button>
+            <button
+              type="button"
+              class="studio__action studio__action--danger"
+              (click)="requestDelete(video)"
+              i18n
+            >
+              Delete
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+
+    @if (hasMore()) {
+      <div class="studio__load-more">
+        @if (loadMoreError(); as message) {
+          <p class="studio__state studio__state--error" role="alert">{{ message }}</p>
+        }
+        <button
+          type="button"
+          class="studio__load-more-button"
+          [disabled]="loadingMore()"
+          (click)="loadMore()"
+          i18n
+        >
+          {{ loadingMore() ? 'Loading…' : 'Load more' }}
+        </button>
+      </div>
+    }
+  }
+
+  <app-confirm-dialog
+    [open]="dialogOpen()"
+    [title]="dialogTitle()"
+    description="Permanently deletes the video. This cannot be undone."
+    confirmLabel="Delete video"
+    [danger]="true"
+    [requireReason]="false"
+    (confirmed)="confirmDelete()"
+    (cancelled)="cancelDelete()"
+  />
+</main>

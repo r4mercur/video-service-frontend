@@ -12,17 +12,19 @@
       <p class="confirm-dialog__description">{{ description() }}</p>
     }
 
-    <label class="confirm-dialog__label" for="confirm-dialog-reason" i18n>Reason</label>
-    <textarea
-      id="confirm-dialog-reason"
-      class="confirm-dialog__textarea"
-      rows="3"
-      [attr.aria-invalid]="reasonInvalid() ? 'true' : null"
-      [value]="reason()"
-      (input)="onReasonInput($event)"
-    ></textarea>
-    @if (reasonInvalid()) {
-      <p class="confirm-dialog__error" role="alert" i18n>A reason is required.</p>
+    @if (requireReason()) {
+      <label class="confirm-dialog__label" for="confirm-dialog-reason" i18n>Reason</label>
+      <textarea
+        id="confirm-dialog-reason"
+        class="confirm-dialog__textarea"
+        rows="3"
+        [attr.aria-invalid]="reasonInvalid() ? 'true' : null"
+        [value]="reason()"
+        (input)="onReasonInput($event)"
+      ></textarea>
+      @if (reasonInvalid()) {
+        <p class="confirm-dialog__error" role="alert" i18n>A reason is required.</p>
+      }
     }
 
     <div class="confirm-dialog__actions">

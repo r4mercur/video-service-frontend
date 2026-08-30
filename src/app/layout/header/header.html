@@ -8,11 +8,6 @@
       <a routerLink="/catalog" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
         >Browse</a
       >
-      @if (isAuthenticated()) {
-        <a routerLink="/upload" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
-          >Upload</a
-        >
-      }
       @if (isAdmin()) {
         <a
           routerLink="/admin"
@@ -26,6 +21,14 @@
   </div>
   <div class="header__end">
     @if (isAuthenticated()) {
+      <nav class="header__nav" aria-label="Account">
+        <a routerLink="/upload" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
+          >Upload</a
+        >
+        <a routerLink="/studio" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
+          >Studio</a
+        >
+      </nav>
       <button type="button" class="header__signout" (click)="signOut()">Sign out</button>
       <app-avatar [initials]="initials()" />
     } @else {

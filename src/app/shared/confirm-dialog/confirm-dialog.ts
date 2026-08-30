@@ -20,6 +20,8 @@ export class ConfirmDialog {
   readonly description = input<string | null>(null);
   readonly confirmLabel = input('Confirm');
   readonly danger = input(false);
+  /** Admin moderation actions need an audit-trail reason; plain owner actions (e.g. delete-own-video) don't. */
+  readonly requireReason = input(true);
 
   readonly confirmed = output<string>();
   readonly cancelled = output<void>();
@@ -29,7 +31,7 @@ export class ConfirmDialog {
   protected readonly reason = signal('');
   protected readonly touched = signal(false);
   protected readonly reasonInvalid = computed(
-    () => this.touched() && this.reason().trim().length === 0,
+    () => this.requireReason() && this.touched() && this.reason().trim().length === 0,
   );
 
   constructor() {
@@ -66,7 +68,7 @@ export class ConfirmDialog {
 
   protected onConfirm(): void {
     const trimmed = this.reason().trim();
-    if (!trimmed) {
+    if (this.requireReason() && !trimmed) {
       this.touched.set(true);
       return;
     }

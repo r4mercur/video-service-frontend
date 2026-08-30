@@ -73,6 +73,23 @@ describe('ConfirmDialog', () => {
     expect(confirmSpy).toHaveBeenCalledWith('spam content');
   });
 
+  it('confirms immediately without a reason field when requireReason is false', async () => {
+    const fixture = await createFixture(true);
+    fixture.componentRef.setInput('requireReason', false);
+    fixture.detectChanges();
+    const confirmSpy = vi.fn();
+    fixture.componentInstance.confirmed.subscribe(confirmSpy);
+
+    expect(fixture.nativeElement.querySelector('textarea')).toBeFalsy();
+
+    const confirmButton = fixture.nativeElement.querySelector(
+      '.confirm-dialog__confirm',
+    ) as HTMLButtonElement;
+    confirmButton.click();
+
+    expect(confirmSpy).toHaveBeenCalledWith('');
+  });
+
   it('emits cancelled without requiring a reason', async () => {
     const fixture = await createFixture(true);
     const cancelSpy = vi.fn();
