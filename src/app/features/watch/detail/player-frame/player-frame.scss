@@ -45,13 +45,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: var(--space-4) var(--space-5);
+  padding: var(--space-3) var(--space-4);
   background: linear-gradient(180deg, rgb(10 8 18 / 0%), rgb(10 8 18 / 90%));
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   opacity: 1;
   transition: opacity 0.25s ease;
+
+  @include respond-up(sm) {
+    padding: var(--space-4) var(--space-5);
+  }
 
   &--hidden {
     opacity: 0;
@@ -97,14 +101,19 @@
 }
 
 .player__volume {
-  width: 5rem;
+  width: 3.5rem;
+
+  @include respond-up(sm) {
+    width: 5rem;
+  }
 }
 
 .player__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-4);
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   font-family: var(--font-body);
   font-size: var(--text-sm);
   color: #cdc7e8;
@@ -113,7 +122,11 @@
 .player__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
+
+  @include respond-up(sm) {
+    gap: var(--space-3);
+  }
 }
 
 .player__button {

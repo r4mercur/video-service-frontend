@@ -27,6 +27,16 @@ interface QualityLevel {
   height: number;
 }
 
+/**
+ * iOS WebKit (Safari and Chrome-iOS alike, both run on WebKit) does not support the standard
+ * Fullscreen API on arbitrary elements — only the video element's own native fullscreen player,
+ * entered/exited through these vendor-prefixed members, which no lib.dom.d.ts version declares.
+ */
+interface WebkitFullscreenVideoElement extends HTMLVideoElement {
+  webkitEnterFullscreen?: () => void;
+  webkitExitFullscreen?: () => void;
+}
+
 @Component({
   selector: 'app-player-frame',
   imports: [DurationPipe, Listbox, Option],
@@ -67,6 +77,7 @@ export class PlayerFrame {
   protected readonly activeLevelHeight = signal<number | null>(null);
   protected readonly qualityMenuOpen = signal(false);
   protected readonly controlsVisible = signal(true);
+  protected readonly isIosWebkit = signal(false);
 
   private readonly seekScrub = signal<number | null>(null);
   private readonly volumeScrub = signal<number | null>(null);
@@ -100,6 +111,7 @@ export class PlayerFrame {
         return;
       }
       this.listenersBound = true;
+      this.isIosWebkit.set(this.detectIosWebkit(video));
       this.bindVideoListeners(video);
     });
 
@@ -173,9 +185,20 @@ export class PlayerFrame {
 
   protected toggleFullscreen(): void {
     const container = this.playerElement()?.nativeElement;
-    if (!container) {
+    const video = this.videoElement()?.nativeElement as WebkitFullscreenVideoElement | undefined;
+    if (!container || !video) {
       return;
     }
+
+    if (this.isIosWebkit()) {
+      if (this.isFullscreen()) {
+        video.webkitExitFullscreen?.();
+      } else {
+        video.webkitEnterFullscreen?.();
+      }
+      return;
+    }
+
     if (this.document.fullscreenElement) {
       void this.document.exitFullscreen();
     } else {
@@ -262,6 +285,19 @@ export class PlayerFrame {
       }
     });
     video.addEventListener('durationchange', () => this.duration.set(video.duration || 0));
+    // iOS's native video fullscreen player fires these on the video element instead of
+    // `fullscreenchange` on the document (see `WebkitFullscreenVideoElement`).
+    video.addEventListener('webkitbeginfullscreen', () => this.isFullscreen.set(true));
+    video.addEventListener('webkitendfullscreen', () => this.isFullscreen.set(false));
+  }
+
+  /**
+   * iOS WebKit reports `document.fullscreenEnabled === false` (arbitrary elements can't go
+   * fullscreen) while still exposing `HTMLVideoElement.webkitEnterFullscreen` on the video
+   * itself — that combination is effectively an iOS signature, without reading `navigator`.
+   */
+  private detectIosWebkit(video: WebkitFullscreenVideoElement): boolean {
+    return !this.document.fullscreenEnabled && typeof video.webkitEnterFullscreen === 'function';
   }
 
   private scheduleAutoHide(): void {

@@ -144,17 +144,21 @@
               </svg>
             }
           </button>
-          <input
-            class="player__volume"
-            type="range"
-            min="0"
-            max="1"
-            step="0.05"
-            [value]="displayVolume()"
-            (input)="onVolumeInput($event)"
-            (change)="onVolumeCommit()"
-            aria-label="Volume"
-          />
+          @if (!isIosWebkit()) {
+            <!-- iOS ignores HTMLMediaElement.volume (hardware-only volume) -- a slider that
+                 does nothing would be misleading, so mute stays as the only iOS volume control. -->
+            <input
+              class="player__volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              [value]="displayVolume()"
+              (input)="onVolumeInput($event)"
+              (change)="onVolumeCommit()"
+              aria-label="Volume"
+            />
+          }
 
           <button
             type="button"
