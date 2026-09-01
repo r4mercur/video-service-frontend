@@ -187,21 +187,104 @@ describe('Studio', () => {
     visibilityButton(fixture).click();
     await settle(fixture);
 
-    httpMock
-      .expectOne('/api/videos/video-1')
-      .flush(
-        {
-          title: 'Conflict',
-          status: 409,
-          detail: 'Video cannot be made public while a report is open',
-        },
-        { status: 409, statusText: 'Conflict' },
-      );
+    httpMock.expectOne('/api/videos/video-1').flush(
+      {
+        title: 'Conflict',
+        status: 409,
+        detail: 'Video cannot be made public while a report is open',
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
     await settle(fixture);
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Video cannot be made public while a report is open');
     expect(text).toContain('PRIVATE');
+  });
+
+  it('shows the status button only for videos that are not READY yet', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({
+        items: [
+          makeVideo({ id: 'video-1', status: 'READY' }),
+          makeVideo({ id: 'video-2', slug: undefined, status: 'PROCESSING' }),
+        ],
+      } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const rows = fixture.nativeElement.querySelectorAll('.studio__row');
+    expect(rows[0].textContent).not.toContain('View status');
+    expect(rows[1].textContent).toContain('View status');
+  });
+
+  it('opens the status dialog and shows the fetched status', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({
+        items: [makeVideo({ id: 'video-2', slug: undefined, status: 'PROCESSING' })],
+      } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const statusButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('.studio__action'),
+    ) as HTMLButtonElement[];
+    const statusButton = statusButtons.find((button) =>
+      button.textContent?.includes('View status'),
+    );
+    statusButton?.click();
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne('/api/videos/video-2/status')
+      .flush({ status: 'PROCESSING', progressPercent: 55, currentStep: 'Transcoding' });
+    await settle(fixture);
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('55%');
+    expect(text).toContain('Transcoding');
+  });
+
+  it('refetches the status when refresh is clicked in the status dialog', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({
+        items: [makeVideo({ id: 'video-2', slug: undefined, status: 'PROCESSING' })],
+      } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const statusButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('.studio__action'),
+    ) as HTMLButtonElement[];
+    statusButtons.find((button) => button.textContent?.includes('View status'))?.click();
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne('/api/videos/video-2/status')
+      .flush({ status: 'PROCESSING', progressPercent: 10 });
+    await settle(fixture);
+
+    (
+      fixture.nativeElement.querySelector('.video-status-dialog__refresh') as HTMLButtonElement
+    ).click();
+    fixture.detectChanges();
+
+    httpMock.expectOne('/api/videos/video-2/status').flush({ status: 'READY' });
+    await settle(fixture);
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain('is ready');
   });
 
   it('loads more videos using the next cursor', async () => {

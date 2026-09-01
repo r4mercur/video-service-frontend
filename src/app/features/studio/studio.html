@@ -59,6 +59,11 @@
           </div>
 
           <div class="studio__actions">
+            @if (video.status && video.status !== 'READY') {
+              <button type="button" class="studio__action" (click)="openStatusDialog(video)" i18n>
+                View status
+              </button>
+            }
             <button
               type="button"
               class="studio__action"
@@ -111,5 +116,16 @@
     [requireReason]="false"
     (confirmed)="confirmDelete()"
     (cancelled)="cancelDelete()"
+  />
+
+  <app-video-status-dialog
+    [open]="statusDialogOpen()"
+    [videoTitle]="statusDialogTitle()"
+    [videoSlug]="statusDialogSlug()"
+    [loading]="statusLoading()"
+    [error]="statusError()"
+    [data]="statusData()"
+    (refreshRequested)="refreshStatus()"
+    (closed)="closeStatusDialog()"
   />
 </main>

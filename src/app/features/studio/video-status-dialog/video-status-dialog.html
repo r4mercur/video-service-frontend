@@ -1,0 +1,85 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -- Backdrop click to close; Escape (native `cancel` event) is the keyboard equivalent. -->
+<dialog
+  #dialogEl
+  class="video-status-dialog"
+  (cancel)="onCancel()"
+  (click)="onBackdropClick($event)"
+>
+  <div class="video-status-dialog__panel">
+    <div class="video-status-dialog__head">
+      <h2 class="video-status-dialog__title" i18n>Status</h2>
+      @if (data()?.status; as status) {
+        <app-tag variant="badge" [tone]="statusTone(status)">{{ status }}</app-tag>
+      }
+    </div>
+    <p class="video-status-dialog__video-title">{{ videoTitle() }}</p>
+
+    @if (loading()) {
+      <p class="video-status-dialog__state" i18n>Loading status…</p>
+    } @else if (error(); as message) {
+      <p class="video-status-dialog__error" role="alert">{{ message }}</p>
+    } @else if (data(); as status) {
+      @switch (status.status) {
+        @case ('UPLOADING') {
+          <p class="video-status-dialog__hint" i18n>
+            This video is still uploading. You can leave this page — the upload continues in the
+            original tab. If this looks stuck, delete the video below and start a new upload.
+          </p>
+        }
+        @case ('PROCESSING') {
+          <div class="video-status-dialog__bar-row">
+            <div class="video-status-dialog__bar">
+              <div
+                class="video-status-dialog__bar-fill"
+                [style.width.%]="status.progressPercent ?? 0"
+              ></div>
+            </div>
+            <span class="video-status-dialog__percent">{{ status.progressPercent ?? 0 }}%</span>
+          </div>
+          @if (status.currentStep; as step) {
+            <p class="video-status-dialog__step">{{ step }}</p>
+          }
+        }
+        @case ('FAILED') {
+          <p class="video-status-dialog__error" role="alert">
+            {{ status.lastError ?? 'Processing failed.' }}
+          </p>
+          <p class="video-status-dialog__hint" i18n>
+            You can delete this video below and upload it again.
+          </p>
+        }
+        @case ('BLOCKED') {
+          <p class="video-status-dialog__error" role="alert">
+            {{ status.lastError ?? 'This video was blocked.' }}
+          </p>
+          <p class="video-status-dialog__hint" i18n>
+            You can delete this video below and upload it again.
+          </p>
+        }
+        @case ('READY') {
+          <p class="video-status-dialog__state" i18n>Processing finished — this video is ready.</p>
+          @if (videoSlug(); as slug) {
+            <a class="video-status-dialog__watch" [routerLink]="['/watch', slug]" i18n
+              >Watch video</a
+            >
+          }
+        }
+      }
+    }
+
+    <div class="video-status-dialog__actions">
+      <button
+        type="button"
+        class="video-status-dialog__refresh"
+        [disabled]="loading()"
+        (click)="refreshRequested.emit()"
+        i18n
+      >
+        Refresh
+      </button>
+      <button type="button" class="video-status-dialog__close" (click)="onCancel()" i18n>
+        Close
+      </button>
+    </div>
+  </div>
+</dialog>

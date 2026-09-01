@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { components } from '@core/api/schema';
 import { firstValueFrom } from 'rxjs';
 
 type CursorPage = components['schemas']['CursorPageVideoDetailDto'];
 type UpdateVideoRequest = components['schemas']['UpdateVideoRequest'];
 type Visibility = NonNullable<UpdateVideoRequest['visibility']>;
+type VideoStatusResponse = components['schemas']['VideoStatusResponse'];
 
 @Injectable({ providedIn: 'root' })
 export class StudioApi {
@@ -22,5 +23,9 @@ export class StudioApi {
   updateVisibility(videoId: string, visibility: Visibility): Promise<void> {
     const body: UpdateVideoRequest = { visibility };
     return firstValueFrom(this.http.patch<void>(`/api/videos/${videoId}`, body));
+  }
+
+  status(videoId: string): Promise<VideoStatusResponse> {
+    return firstValueFrom(this.http.get<VideoStatusResponse>(`/api/videos/${videoId}/status`));
   }
 }
