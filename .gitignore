@@ -29,6 +29,9 @@ yarn-error.log
 !.vscode/mcp.json
 .history/*
 
+# Generated
+/src/app/core/app-version.generated.ts
+
 # Miscellaneous
 /.angular/cache
 .sass-cache/

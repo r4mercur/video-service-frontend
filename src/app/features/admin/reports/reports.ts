@@ -2,6 +2,7 @@ import { HttpClient, httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { Tab, TabList, TabPanel, Tabs } from '@angular/aria/tabs';
 import { RouterLink } from '@angular/router';
+import { APP_VERSION } from '@core/app-version.generated';
 import { components } from '@core/api/schema';
 import { isApiProblem } from '@core/http/api-problem';
 import { ConfirmDialog } from '@shared/confirm-dialog/confirm-dialog';
@@ -39,6 +40,8 @@ const PAGE_SIZE = 20;
 export class Reports {
   private readonly http = inject(HttpClient);
   private readonly api = inject(ReportsApi);
+
+  protected readonly appVersion = APP_VERSION;
 
   protected readonly activeTab = signal<ReportStatus>('OPEN');
 
