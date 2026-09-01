@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { Injectable, computed } from '@angular/core';
+import { computed, Injectable } from '@angular/core';
 import { components } from '@core/api/schema';
 
 export type CategoryDto = components['schemas']['CategoryDto'];
@@ -26,10 +26,27 @@ export class CategoriesService {
     return map;
   });
 
+  private readonly idBySlug = computed(() => {
+    const map = new Map<string, number>();
+    for (const category of this.categories()) {
+      if (category.slug && category.id != null) {
+        map.set(category.slug, category.id);
+      }
+    }
+    return map;
+  });
+
   nameForSlug(slug: string | undefined): string {
     if (!slug) {
       return 'Uncategorized';
     }
     return this.bySlug().get(slug) ?? slug;
+  }
+
+  idForSlug(slug: string | undefined): number | null {
+    if (!slug) {
+      return null;
+    }
+    return this.idBySlug().get(slug) ?? null;
   }
 }

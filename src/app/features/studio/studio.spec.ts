@@ -105,7 +105,7 @@ describe('Studio', () => {
     (fixture.nativeElement.querySelector('.studio__action--danger') as HTMLButtonElement).click();
     await settle(fixture);
 
-    expect(fixture.nativeElement.querySelector('textarea')).toBeFalsy();
+    expect(fixture.nativeElement.querySelector('.confirm-dialog textarea')).toBeFalsy();
     (fixture.nativeElement.querySelector('.confirm-dialog__confirm') as HTMLButtonElement).click();
     fixture.detectChanges();
 
@@ -144,9 +144,7 @@ describe('Studio', () => {
   });
 
   function visibilityButton(fixture: ComponentFixture<Studio>): HTMLButtonElement {
-    return fixture.nativeElement.querySelector(
-      '.studio__action:not(.studio__action--danger)',
-    ) as HTMLButtonElement;
+    return fixture.nativeElement.querySelector('.studio__action--visibility') as HTMLButtonElement;
   }
 
   it('making a private video public updates the visibility tag', async () => {
@@ -166,7 +164,7 @@ describe('Studio', () => {
     const req = httpMock.expectOne('/api/videos/video-1');
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ visibility: 'PUBLIC' });
-    req.flush(null);
+    req.flush(makeVideo({ visibility: 'PUBLIC' }));
     await settle(fixture);
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
@@ -195,11 +193,146 @@ describe('Studio', () => {
       },
       { status: 409, statusText: 'Conflict' },
     );
+    // `applyVideoUpdate()` adds one extra promise hop over calling the API directly, so the
+    // error needs an additional microtask flush to reach `visibilityError` before it renders.
+    await settle(fixture);
     await settle(fixture);
 
     const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(text).toContain('Video cannot be made public while a report is open');
     expect(text).toContain('PRIVATE');
+  });
+
+  it('shows a pending state and disables Edit while a visibility migration is in progress', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo({ visibility: 'PRIVATE' })] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    visibilityButton(fixture).click();
+    await settle(fixture);
+
+    // Backend accepts the PATCH but hasn't finished migrating the object store yet — the
+    // response still carries the pre-change visibility.
+    httpMock.expectOne('/api/videos/video-1').flush(makeVideo({ visibility: 'PRIVATE' }));
+    await settle(fixture);
+    await settle(fixture);
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Updating visibility');
+    const editButton = Array.from(fixture.nativeElement.querySelectorAll('.studio__action')).find(
+      (button) => (button as HTMLButtonElement).textContent?.trim() === 'Edit',
+    ) as HTMLButtonElement | undefined;
+    expect(editButton?.disabled).toBe(true);
+    expect(visibilityButton(fixture).disabled).toBe(true);
+
+    // Let the migration settle so httpMock.verify() in afterEach doesn't see a dangling request.
+    httpMock.expectOne('/api/videos/video-1/status').flush({ status: 'READY' });
+    await settle(fixture);
+    await settle(fixture);
+  });
+
+  it('settles a pending visibility migration once the backend confirms the target', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo({ visibility: 'PRIVATE' })] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    visibilityButton(fixture).click();
+    await settle(fixture);
+
+    httpMock.expectOne('/api/videos/video-1').flush(makeVideo({ visibility: 'PRIVATE' }));
+    await settle(fixture);
+    await settle(fixture);
+
+    httpMock.expectOne('/api/videos/video-1/status').flush({ status: 'READY' });
+    await settle(fixture);
+    await settle(fixture);
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('PUBLIC');
+    expect(text).not.toContain('Updating visibility');
+    expect(visibilityButton(fixture).disabled).toBe(false);
+  });
+
+  it('shows an error and keeps the old visibility when the migration fails', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo({ visibility: 'PRIVATE' })] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    visibilityButton(fixture).click();
+    await settle(fixture);
+
+    httpMock.expectOne('/api/videos/video-1').flush(makeVideo({ visibility: 'PRIVATE' }));
+    await settle(fixture);
+    await settle(fixture);
+
+    httpMock
+      .expectOne('/api/videos/video-1/status')
+      .flush({ status: 'READY', lastError: 'Object store migration failed' });
+    await settle(fixture);
+    await settle(fixture);
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Object store migration failed');
+    expect(text).toContain('PRIVATE');
+    expect(text).not.toContain('Updating visibility');
+    expect(visibilityButton(fixture).disabled).toBe(false);
+  });
+
+  it('stops polling for a visibility migration once the component is destroyed', async () => {
+    vi.useFakeTimers();
+    try {
+      const fixture = TestBed.createComponent(Studio);
+      fixture.detectChanges();
+
+      httpMock
+        .expectOne((r) => r.url === '/api/me/videos')
+        .flush({ items: [makeVideo({ visibility: 'PRIVATE' })] } as CursorPage);
+      flushCategories();
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+
+      visibilityButton(fixture).click();
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+
+      httpMock.expectOne('/api/videos/video-1').flush(makeVideo({ visibility: 'PRIVATE' }));
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+
+      // Still mid-migration — this schedules a follow-up poll 5s out via setTimeout.
+      httpMock
+        .expectOne('/api/videos/video-1/status')
+        .flush({ status: 'READY', visibilityTarget: 'PUBLIC' });
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(0);
+      fixture.detectChanges();
+
+      fixture.destroy();
+
+      await vi.advanceTimersByTimeAsync(10_000);
+
+      httpMock.expectNone('/api/videos/video-1/status');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('shows the status button only for videos that are not READY yet', async () => {
@@ -285,6 +418,110 @@ describe('Studio', () => {
     await settle(fixture);
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('is ready');
+  });
+
+  it('opens the edit dialog prefilled with the video being edited', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo({ title: 'Original title' })] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const editButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('.studio__action'),
+    ) as HTMLButtonElement[];
+    editButtons.find((button) => button.textContent?.trim() === 'Edit')?.click();
+    await settle(fixture);
+
+    const title = fixture.nativeElement.querySelector('#edit-title') as HTMLInputElement;
+    expect(title.value).toBe('Original title');
+  });
+
+  it('saving an edit replaces the video with the server response', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo({ title: 'Original title' })] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const editButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('.studio__action'),
+    ) as HTMLButtonElement[];
+    editButtons.find((button) => button.textContent?.trim() === 'Edit')?.click();
+    await settle(fixture);
+
+    const title = fixture.nativeElement.querySelector('#edit-title') as HTMLInputElement;
+    title.value = 'Updated title';
+    title.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (
+      fixture.nativeElement.querySelector('.edit-metadata-dialog__panel') as HTMLFormElement
+    ).requestSubmit();
+    fixture.detectChanges();
+
+    const req = httpMock.expectOne('/api/videos/video-1');
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({
+      title: 'Updated title',
+      categoryId: 1,
+      visibility: 'PUBLIC',
+      description: '',
+    });
+    req.flush(makeVideo({ title: 'Updated title' }));
+    // `applyVideoUpdate()` adds one extra promise hop over calling the API directly, so closing
+    // the dialog needs an additional microtask flush to land before it renders.
+    await settle(fixture);
+    await settle(fixture);
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain('Updated title');
+    expect(fixture.nativeElement.querySelector('.edit-metadata-dialog[open]')).toBeFalsy();
+  });
+
+  it('shows an inline error in the edit dialog when saving fails', async () => {
+    const fixture = TestBed.createComponent(Studio);
+    fixture.detectChanges();
+
+    httpMock
+      .expectOne((r) => r.url === '/api/me/videos')
+      .flush({ items: [makeVideo()] } as CursorPage);
+    flushCategories();
+    await settle(fixture);
+
+    const editButtons = Array.from(
+      fixture.nativeElement.querySelectorAll('.studio__action'),
+    ) as HTMLButtonElement[];
+    editButtons.find((button) => button.textContent?.trim() === 'Edit')?.click();
+    await settle(fixture);
+
+    (
+      fixture.nativeElement.querySelector('.edit-metadata-dialog__panel') as HTMLFormElement
+    ).requestSubmit();
+    fixture.detectChanges();
+
+    httpMock.expectOne('/api/videos/video-1').flush(
+      {
+        title: 'Conflict',
+        status: 409,
+        detail: 'Video cannot be made public while a report is open',
+      },
+      { status: 409, statusText: 'Conflict' },
+    );
+    // `applyVideoUpdate()` adds one extra promise hop over calling the API directly, so the
+    // error needs an additional microtask flush to reach `editError` before it renders.
+    await settle(fixture);
+    await settle(fixture);
+
+    expect(
+      fixture.nativeElement.querySelector('.edit-metadata-dialog__error')?.textContent,
+    ).toContain('Video cannot be made public while a report is open');
   });
 
   it('loads more videos using the next cursor', async () => {

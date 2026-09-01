@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input, signal } from '@angular/core';
+import { AdultContentPreferenceService } from '@core/adult-content-preference/adult-content-preference';
 import { components } from '@core/api/schema';
 import { AuthService } from '@core/auth/auth';
 import { CategoriesService } from '@core/catalog/categories';
@@ -44,6 +45,7 @@ export class VideoDetail {
   private readonly watchProgress = inject(WatchProgressService);
   private readonly auth = inject(AuthService);
   private readonly reportApi = inject(VideoReportApi);
+  private readonly adultContentPreference = inject(AdultContentPreferenceService);
 
   readonly slug = input.required<string>();
 
@@ -68,7 +70,15 @@ export class VideoDetail {
 
   private readonly recommendedFeed = httpResource<CursorPage>(() => {
     const category = this.video.value()?.categorySlug;
-    return category ? { url: '/api/videos', params: { category, limit: 5 } } : undefined;
+    if (!category) {
+      return undefined;
+    }
+    // A direct link to an age-restricted video stays reachable regardless of the visitor's
+    // general preference (the backend filter is discovery-only, not access control) - so its own
+    // "Recommended" rail must include that category too, or it would always come back empty.
+    const includeAgeRestricted =
+      this.video.value()?.ageRestricted || this.adultContentPreference.includeAdultContent();
+    return { url: '/api/videos', params: { category, limit: 5, includeAgeRestricted } };
   });
 
   protected readonly recommended = computed(() => {

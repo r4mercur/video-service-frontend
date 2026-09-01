@@ -1,0 +1,84 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -- Backdrop click to close; Escape (native `cancel` event) is the keyboard equivalent. -->
+<dialog
+  #dialogEl
+  class="edit-metadata-dialog"
+  (cancel)="onCancel()"
+  (click)="onBackdropClick($event)"
+>
+  <form class="edit-metadata-dialog__panel" (submit)="onSubmit($event)" novalidate>
+    <h2 class="edit-metadata-dialog__title" i18n>Edit video details</h2>
+
+    @if (error(); as message) {
+      <p class="edit-metadata-dialog__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="edit-metadata-dialog__field">
+      <label for="edit-title" i18n>Title</label>
+      <input id="edit-title" type="text" autocomplete="off" [formField]="metadataForm.title" />
+      @if (metadataForm.title().touched() && metadataForm.title().invalid()) {
+        <span class="edit-metadata-dialog__field-error">{{
+          metadataForm.title().errors()[0]?.message
+        }}</span>
+      }
+    </div>
+
+    <div class="edit-metadata-dialog__field">
+      <label for="edit-genre" i18n>Genre</label>
+      <app-category-select id="edit-genre" [formField]="metadataForm.categoryId" />
+      @if (metadataForm.categoryId().touched() && metadataForm.categoryId().invalid()) {
+        <span class="edit-metadata-dialog__field-error">{{
+          metadataForm.categoryId().errors()[0]?.message
+        }}</span>
+      }
+    </div>
+
+    <div class="edit-metadata-dialog__field">
+      <span class="edit-metadata-dialog__label" i18n>Visibility</span>
+      <div class="edit-metadata-dialog__visibility" role="group" aria-label="Visibility">
+        <button
+          type="button"
+          class="edit-metadata-dialog__visibility-option"
+          [class.edit-metadata-dialog__visibility-option--active]="
+            metadataForm.visibility().value() === 'PUBLIC'
+          "
+          [attr.aria-pressed]="metadataForm.visibility().value() === 'PUBLIC'"
+          (click)="setVisibility('PUBLIC')"
+          i18n
+        >
+          Public
+        </button>
+        <button
+          type="button"
+          class="edit-metadata-dialog__visibility-option"
+          [class.edit-metadata-dialog__visibility-option--active]="
+            metadataForm.visibility().value() === 'PRIVATE'
+          "
+          [attr.aria-pressed]="metadataForm.visibility().value() === 'PRIVATE'"
+          (click)="setVisibility('PRIVATE')"
+          i18n
+        >
+          Private
+        </button>
+      </div>
+    </div>
+
+    <div class="edit-metadata-dialog__field">
+      <label for="edit-description" i18n>Description</label>
+      <textarea id="edit-description" rows="3" [formField]="metadataForm.description"></textarea>
+      @if (metadataForm.description().touched() && metadataForm.description().invalid()) {
+        <span class="edit-metadata-dialog__field-error">{{
+          metadataForm.description().errors()[0]?.message
+        }}</span>
+      }
+    </div>
+
+    <div class="edit-metadata-dialog__actions">
+      <button type="button" class="edit-metadata-dialog__cancel" (click)="onCancel()" i18n>
+        Cancel
+      </button>
+      <button type="submit" class="edit-metadata-dialog__save" [disabled]="saving()">
+        {{ saving() ? 'Saving…' : 'Save changes' }}
+      </button>
+    </div>
+  </form>
+</dialog>

@@ -1,0 +1,18 @@
+<dialog #dialogEl class="adult-content-dialog" (cancel)="onCancel($event)">
+  <div class="adult-content-dialog__panel">
+    <h2 class="adult-content-dialog__title" i18n>Adult content</h2>
+    <p class="adult-content-dialog__description" i18n>
+      This platform hosts some videos in a dedicated 18+ category. Would you like to see them in
+      your feed? You can change this anytime.
+    </p>
+
+    <div class="adult-content-dialog__actions">
+      <button type="button" class="adult-content-dialog__decline" (click)="onAnswer(false)" i18n>
+        No, keep it hidden
+      </button>
+      <button type="button" class="adult-content-dialog__confirm" (click)="onAnswer(true)" i18n>
+        Yes, show it to me
+      </button>
+    </div>
+  </div>
+</dialog>

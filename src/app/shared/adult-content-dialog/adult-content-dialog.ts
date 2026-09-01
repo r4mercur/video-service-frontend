@@ -1,15 +1,14 @@
-import { Component, ElementRef, afterRenderEffect, input, output, viewChild } from '@angular/core';
+import { afterRenderEffect, Component, ElementRef, input, output, viewChild } from '@angular/core';
 
 @Component({
-  selector: 'app-age-gate-dialog',
-  templateUrl: './age-gate-dialog.html',
-  styleUrl: './age-gate-dialog.scss',
+  selector: 'app-adult-content-dialog',
+  templateUrl: './adult-content-dialog.html',
+  styleUrl: './adult-content-dialog.scss',
 })
-export class AgeGateDialog {
+export class AdultContentDialog {
   readonly open = input.required<boolean>();
 
-  readonly confirmed = output<void>();
-  readonly declined = output<void>();
+  readonly answered = output<boolean>();
 
   private readonly dialogElement = viewChild<ElementRef<HTMLDialogElement>>('dialogEl');
 
@@ -27,15 +26,11 @@ export class AgeGateDialog {
     });
   }
 
-  protected onConfirm(): void {
-    this.confirmed.emit();
+  protected onAnswer(includeAdultContent: boolean): void {
+    this.answered.emit(includeAdultContent);
   }
 
-  protected onDecline(): void {
-    this.declined.emit();
-  }
-
-  /** Escape fires the native `cancel` event — block it, this gate isn't dismissible. */
+  /** Escape fires the native `cancel` event — block it, this isn't dismissible without an answer. */
   protected onCancel(event: Event): void {
     event.preventDefault();
   }

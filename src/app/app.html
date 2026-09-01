@@ -1,6 +1,5 @@
 <router-outlet />
-<app-age-gate-dialog
-  [open]="!ageGate.confirmed()"
-  (confirmed)="ageGate.confirm()"
-  (declined)="ageGate.decline()"
+<app-adult-content-dialog
+  [open]="!adultContentPreference.answered()"
+  (answered)="adultContentPreference.setPreference($event)"
 />

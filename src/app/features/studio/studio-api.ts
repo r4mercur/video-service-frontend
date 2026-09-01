@@ -4,8 +4,8 @@ import { components } from '@core/api/schema';
 import { firstValueFrom } from 'rxjs';
 
 type CursorPage = components['schemas']['CursorPageVideoDetailDto'];
+type VideoDetailDto = components['schemas']['VideoDetailDto'];
 type UpdateVideoRequest = components['schemas']['UpdateVideoRequest'];
-type Visibility = NonNullable<UpdateVideoRequest['visibility']>;
 type VideoStatusResponse = components['schemas']['VideoStatusResponse'];
 
 @Injectable({ providedIn: 'root' })
@@ -20,9 +20,8 @@ export class StudioApi {
     return firstValueFrom(this.http.delete<void>(`/api/videos/${videoId}`));
   }
 
-  updateVisibility(videoId: string, visibility: Visibility): Promise<void> {
-    const body: UpdateVideoRequest = { visibility };
-    return firstValueFrom(this.http.patch<void>(`/api/videos/${videoId}`, body));
+  updateVideo(videoId: string, patch: UpdateVideoRequest): Promise<VideoDetailDto> {
+    return firstValueFrom(this.http.patch<VideoDetailDto>(`/api/videos/${videoId}`, patch));
   }
 
   status(videoId: string): Promise<VideoStatusResponse> {

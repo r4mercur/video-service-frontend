@@ -2,7 +2,7 @@
   display: contents;
 }
 
-.age-gate-dialog {
+.adult-content-dialog {
   padding: 0;
   border: none;
   border-radius: var(--radius-xl);
@@ -17,14 +17,14 @@
   }
 }
 
-.age-gate-dialog__panel {
+.adult-content-dialog__panel {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-6);
 }
 
-.age-gate-dialog__title {
+.adult-content-dialog__title {
   margin: 0;
   font-family: var(--font-heading);
   font-weight: 700;
@@ -32,22 +32,22 @@
   color: var(--color-text-heading);
 }
 
-.age-gate-dialog__description {
+.adult-content-dialog__description {
   margin: 0;
   font-family: var(--font-body);
   font-size: var(--text-base);
   color: var(--color-text-secondary);
 }
 
-.age-gate-dialog__actions {
+.adult-content-dialog__actions {
   display: flex;
   justify-content: flex-end;
   gap: var(--space-3);
   margin-top: var(--space-2);
 }
 
-.age-gate-dialog__decline,
-.age-gate-dialog__confirm {
+.adult-content-dialog__decline,
+.adult-content-dialog__confirm {
   font-family: var(--font-body);
   font-weight: 500;
   font-size: var(--text-base);
@@ -76,7 +76,7 @@
   }
 }
 
-.age-gate-dialog__decline {
+.adult-content-dialog__decline {
   background: transparent;
   color: var(--color-text-secondary);
 
@@ -87,7 +87,7 @@
   }
 }
 
-.age-gate-dialog__confirm {
+.adult-content-dialog__confirm {
   background: var(--color-accent);
   color: var(--color-on-accent);
 

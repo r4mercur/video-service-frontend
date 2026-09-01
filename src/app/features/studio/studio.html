@@ -48,7 +48,13 @@
               <app-tag variant="badge" [tone]="statusTone(video.status)">{{
                 video.status
               }}</app-tag>
-              <app-tag variant="badge" tone="neutral">{{ video.visibility }}</app-tag>
+              @if (isVisibilityMigrating(video)) {
+                <span role="status">
+                  <app-tag variant="badge" tone="neutral" i18n>Updating visibility…</app-tag>
+                </span>
+              } @else {
+                <app-tag variant="badge" tone="neutral">{{ video.visibility }}</app-tag>
+              }
             </div>
             <p class="studio__meta">
               {{ categoryName(video) }}
@@ -67,10 +73,21 @@
             <button
               type="button"
               class="studio__action"
-              [disabled]="visibilityPending() === video.id"
+              [disabled]="isVisibilityMigrating(video)"
+              (click)="openEditDialog(video)"
+              i18n
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              class="studio__action studio__action--visibility"
+              [disabled]="visibilityPending() === video.id || isVisibilityMigrating(video)"
               (click)="toggleVisibility(video)"
             >
-              @if (video.visibility === 'PUBLIC') {
+              @if (isVisibilityMigrating(video)) {
+                <ng-container i18n>Updating…</ng-container>
+              } @else if (video.visibility === 'PUBLIC') {
                 <ng-container i18n>Make private</ng-container>
               } @else {
                 <ng-container i18n>Make public</ng-container>
@@ -127,5 +144,14 @@
     [data]="statusData()"
     (refreshRequested)="refreshStatus()"
     (closed)="closeStatusDialog()"
+  />
+
+  <app-edit-metadata-dialog
+    [open]="editDialogOpen()"
+    [video]="editDialogVideo()"
+    [saving]="editSaving()"
+    [error]="editError()"
+    (saved)="saveEdit($event)"
+    (closed)="closeEditDialog()"
   />
 </main>

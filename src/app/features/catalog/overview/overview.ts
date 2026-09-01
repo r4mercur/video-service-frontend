@@ -1,6 +1,7 @@
 import { HttpClient, httpResource } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AdultContentPreferenceService } from '@core/adult-content-preference/adult-content-preference';
 import { components } from '@core/api/schema';
 import { isApiProblem } from '@core/http/api-problem';
 import { firstValueFrom } from 'rxjs';
@@ -19,10 +20,17 @@ const PAGE_SIZE = 12;
 })
 export class Overview {
   private readonly http = inject(HttpClient);
+  // Only ever read here to fill the includeAgeRestricted query param - whether adult content is
+  // shown is decided exclusively by the initial disclaimer dialog's answer (App/AdultContentDialog),
+  // deliberately not exposed as an on-page control the visitor could change later.
+  private readonly adultContentPreference = inject(AdultContentPreferenceService);
 
   private readonly initialFeed = httpResource<CursorPage>(() => ({
     url: '/api/videos',
-    params: { limit: PAGE_SIZE },
+    params: {
+      limit: PAGE_SIZE,
+      includeAgeRestricted: this.adultContentPreference.includeAdultContent(),
+    },
   }));
 
   protected readonly videos = signal<VideoSummaryDto[]>([]);
@@ -59,7 +67,13 @@ export class Overview {
     this.loadMoreError.set(null);
     try {
       const page = await firstValueFrom(
-        this.http.get<CursorPage>('/api/videos', { params: { limit: PAGE_SIZE, cursor } }),
+        this.http.get<CursorPage>('/api/videos', {
+          params: {
+            limit: PAGE_SIZE,
+            cursor,
+            includeAgeRestricted: this.adultContentPreference.includeAdultContent(),
+          },
+        }),
       );
       this.videos.update((existing) => [...existing, ...(page.items ?? [])]);
       this.nextCursor.set(page.nextCursor ?? undefined);

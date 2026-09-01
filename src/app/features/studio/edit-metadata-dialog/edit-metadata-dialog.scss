@@ -1,0 +1,145 @@
+:host {
+  display: contents;
+}
+
+.edit-metadata-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  max-width: 30rem;
+  width: calc(100vw - var(--space-8));
+
+  &::backdrop {
+    background: rgb(0 0 0 / 60%);
+  }
+}
+
+.edit-metadata-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+}
+
+.edit-metadata-dialog__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--color-text-heading);
+}
+
+.edit-metadata-dialog__error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}
+
+.edit-metadata-dialog__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+
+  label,
+  .edit-metadata-dialog__label {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+  }
+
+  input,
+  textarea {
+    padding: 0.875rem 0.9375rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-overlay-medium);
+    border: 1px solid var(--color-overlay-strong);
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    color: var(--color-text-primary);
+    resize: vertical;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-accent-text);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.edit-metadata-dialog__field-error {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}
+
+.edit-metadata-dialog__visibility {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.edit-metadata-dialog__visibility-option {
+  padding: 0.625rem 1.125rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-overlay-medium);
+  border: 1px solid var(--color-overlay-strong);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+
+  &--active {
+    background: var(--color-accent-soft);
+    border-color: var(--color-accent-border);
+    color: var(--color-accent-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+.edit-metadata-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.edit-metadata-dialog__cancel,
+.edit-metadata-dialog__save {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--text-base);
+  padding: 0.75rem 1.375rem;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: var(--color-text-faint);
+    cursor: not-allowed;
+  }
+}
+
+.edit-metadata-dialog__cancel {
+  background: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+}
+
+.edit-metadata-dialog__save {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}

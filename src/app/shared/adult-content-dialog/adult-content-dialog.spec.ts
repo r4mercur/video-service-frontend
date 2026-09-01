@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AgeGateDialog } from './age-gate-dialog';
+import { AdultContentDialog } from './adult-content-dialog';
 
 /** jsdom implements HTMLDialogElement's `open` reflection but not `showModal`/`close`. */
 function polyfillDialog(): void {
@@ -16,15 +16,15 @@ function polyfillDialog(): void {
   }
 }
 
-async function createFixture(open: boolean): Promise<ComponentFixture<AgeGateDialog>> {
-  const fixture = TestBed.createComponent(AgeGateDialog);
+async function createFixture(open: boolean): Promise<ComponentFixture<AdultContentDialog>> {
+  const fixture = TestBed.createComponent(AdultContentDialog);
   fixture.componentRef.setInput('open', open);
   fixture.detectChanges();
   await fixture.whenStable();
   return fixture;
 }
 
-describe('AgeGateDialog', () => {
+describe('AdultContentDialog', () => {
   beforeAll(() => polyfillDialog());
 
   it('opens the native dialog when `open` is true', async () => {
@@ -39,30 +39,32 @@ describe('AgeGateDialog', () => {
     expect(dialog.open).toBe(false);
   });
 
-  it('emits confirmed when the confirm button is clicked', async () => {
+  it('emits answered(true) when the confirm button is clicked', async () => {
     const fixture = await createFixture(true);
-    const confirmSpy = vi.fn();
-    fixture.componentInstance.confirmed.subscribe(confirmSpy);
+    const answeredSpy = vi.fn();
+    fixture.componentInstance.answered.subscribe(answeredSpy);
 
     const confirmButton = fixture.nativeElement.querySelector(
-      '.age-gate-dialog__confirm',
+      '.adult-content-dialog__confirm',
     ) as HTMLButtonElement;
     confirmButton.click();
 
-    expect(confirmSpy).toHaveBeenCalledOnce();
+    expect(answeredSpy).toHaveBeenCalledOnce();
+    expect(answeredSpy).toHaveBeenCalledWith(true);
   });
 
-  it('emits declined when the decline button is clicked', async () => {
+  it('emits answered(false) when the decline button is clicked', async () => {
     const fixture = await createFixture(true);
-    const declineSpy = vi.fn();
-    fixture.componentInstance.declined.subscribe(declineSpy);
+    const answeredSpy = vi.fn();
+    fixture.componentInstance.answered.subscribe(answeredSpy);
 
     const declineButton = fixture.nativeElement.querySelector(
-      '.age-gate-dialog__decline',
+      '.adult-content-dialog__decline',
     ) as HTMLButtonElement;
     declineButton.click();
 
-    expect(declineSpy).toHaveBeenCalledOnce();
+    expect(answeredSpy).toHaveBeenCalledOnce();
+    expect(answeredSpy).toHaveBeenCalledWith(false);
   });
 
   it('blocks dismissal via the native cancel event (Escape)', async () => {

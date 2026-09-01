@@ -464,6 +464,7 @@ export interface components {
             publishedAt?: string;
             /** Format: date-time */
             createdAt?: string;
+            ageRestricted?: boolean;
         };
         InitiateUploadRequest: {
             title: string;
@@ -571,6 +572,7 @@ export interface components {
             /** Format: int32 */
             sortOrder?: number;
             active?: boolean;
+            ageRestricted?: boolean;
         };
         UpdateVideoRequest: {
             title?: string;
@@ -585,6 +587,7 @@ export interface components {
             /** Format: int32 */
             sortOrder?: number;
             active?: boolean;
+            ageRestricted?: boolean;
         };
         CursorPageVideoSummaryDto: {
             items?: components["schemas"]["VideoSummaryDto"][];
@@ -602,10 +605,13 @@ export interface components {
             ownerUsername?: string;
             /** Format: date-time */
             publishedAt?: string;
+            ageRestricted?: boolean;
         };
         VideoStatusResponse: {
             /** @enum {string} */
             status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
+            /** @enum {string} */
+            visibilityTarget?: "PUBLIC" | "PRIVATE";
             lastError?: string;
             /** Format: int32 */
             progressPercent?: number;
@@ -625,6 +631,7 @@ export interface components {
             name?: string;
             /** Format: int32 */
             sortOrder?: number;
+            ageRestricted?: boolean;
         };
         CursorPageAdminReportDto: {
             items?: components["schemas"]["AdminReportDto"][];
@@ -697,6 +704,7 @@ export interface operations {
                 sort?: string;
                 cursor?: string;
                 limit?: number;
+                includeAgeRestricted?: boolean;
             };
             header?: never;
             path?: never;
@@ -1251,6 +1259,7 @@ export interface operations {
             query?: {
                 cursor?: string;
                 limit?: number;
+                includeAgeRestricted?: boolean;
             };
             header?: never;
             path: {
