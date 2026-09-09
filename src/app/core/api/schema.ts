@@ -84,6 +84,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/playback/telemetry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["report_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/register": {
         parameters: {
             query?: never;
@@ -190,6 +206,22 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["blockVideo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/videos/cache-metadata-backfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["backfillCacheMetadata"];
         delete?: never;
         options?: never;
         head?: never;
@@ -511,6 +543,23 @@ export interface components {
             partNumber?: number;
             eTag: string;
         };
+        FragmentSample: {
+            /** Format: int64 */
+            loadMs: number;
+            /** Format: int64 */
+            bytes: number;
+        };
+        PlaybackTelemetryRequest: {
+            /** Format: int32 */
+            height?: number;
+            fragments?: components["schemas"]["FragmentSample"][];
+            /** Format: int32 */
+            stalls: number;
+            /** Format: int32 */
+            fragmentErrors: number;
+            /** Format: int64 */
+            startupMs?: number;
+        };
         RegisterRequest: {
             /** Format: email */
             email: string;
@@ -817,6 +866,28 @@ export interface operations {
             };
         };
     };
+    report_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaybackTelemetryRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     register: {
         parameters: {
             query?: never;
@@ -972,6 +1043,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    backfillCacheMetadata: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: number;
+                    };
+                };
             };
         };
     };
