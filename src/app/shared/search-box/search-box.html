@@ -1,0 +1,25 @@
+<form class="search-box" role="search" (submit)="onSubmit($event)" novalidate>
+  <label class="search-box__label" [attr.for]="inputId()" i18n>Search videos</label>
+  <input
+    class="search-box__input"
+    type="search"
+    autocomplete="off"
+    enterkeyhint="search"
+    placeholder="Search videos"
+    i18n-placeholder
+    [id]="inputId()"
+    [formField]="searchForm.query"
+  />
+  <button type="submit" class="search-box__submit" aria-label="Search" i18n-aria-label>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+      <path
+        d="m20 20-3.5-3.5"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  </button>
+</form>

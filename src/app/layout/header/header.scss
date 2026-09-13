@@ -85,6 +85,42 @@
   }
 }
 
+// Hidden below md: the header already runs out of width at 375-390px when logged in
+// (frontend CLAUDE.md 12, 2026-09-01), so small screens get the icon link instead.
+.header__search {
+  display: none;
+  flex: 0 1 22rem;
+  margin: 0 var(--space-6);
+
+  @include respond-up(md) {
+    display: block;
+  }
+}
+
+.header__search-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+
+  &:hover,
+  &.header__search-link--active {
+    color: var(--color-accent-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+
+  @include respond-up(md) {
+    display: none;
+  }
+}
+
 .header__end {
   display: flex;
   align-items: center;

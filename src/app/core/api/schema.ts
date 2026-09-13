@@ -388,6 +388,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/search/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/{username}/videos": {
         parameters: {
             query?: never;
@@ -637,6 +653,17 @@ export interface components {
             sortOrder?: number;
             active?: boolean;
             ageRestricted?: boolean;
+        };
+        PageResponseVideoSummaryDto: {
+            items?: components["schemas"]["VideoSummaryDto"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalItems?: number;
+            /** Format: int32 */
+            totalPages?: number;
         };
         CursorPageVideoSummaryDto: {
             items?: components["schemas"]["VideoSummaryDto"][];
@@ -1343,6 +1370,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ManifestResponse"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query?: {
+                q?: string;
+                sort?: string;
+                page?: number;
+                includeAgeRestricted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseVideoSummaryDto"];
                 };
             };
         };

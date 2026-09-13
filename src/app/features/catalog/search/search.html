@@ -1,0 +1,81 @@
+<main class="search">
+  <div class="search__intro">
+    <span class="search__eyebrow" i18n>Search</span>
+    <h1 class="search__heading">
+      @if (queryTooShort()) {
+        <ng-container i18n>Search videos</ng-container>
+      } @else {
+        <ng-container i18n>Results for “{{ query() }}”</ng-container>
+      }
+    </h1>
+  </div>
+
+  <!-- From md upward the header carries the search field, so this one is mobile-only (see scss). -->
+  <app-search-box
+    class="search__box"
+    inputId="search-page-query"
+    [query]="query()"
+    (searched)="search($event)"
+  />
+
+  @if (queryTooShort()) {
+    <p class="search__state" i18n>Enter at least 2 characters to search video titles.</p>
+  } @else if (error(); as message) {
+    <p class="search__state search__state--error" role="alert">{{ message }}</p>
+  } @else if (loading()) {
+    <p class="search__state" i18n>Searching…</p>
+  } @else if (totalItems() === 0) {
+    <div class="search__empty">
+      <h2 i18n>No matches</h2>
+      <p i18n>No video title matches “{{ query() }}”. Check the spelling or try a shorter term.</p>
+    </div>
+  } @else if (videos().length === 0) {
+    <p class="search__state">
+      <ng-container i18n>Page {{ currentPage() }} doesn't exist.</ng-container>
+      <button type="button" class="search__link" (click)="goToPage(1)" i18n>Back to page 1</button>
+    </p>
+  } @else {
+    <div class="search__toolbar">
+      <p class="search__count" i18n>
+        {totalItems(), plural, =1 {1 result} other {{{ totalItems() }} results}}
+      </p>
+      <div class="search__sort" role="group" aria-label="Sort results" i18n-aria-label>
+        <button
+          type="button"
+          class="search__sort-option"
+          [class.search__sort-option--active]="activeSort() === 'relevance'"
+          [attr.aria-pressed]="activeSort() === 'relevance'"
+          (click)="changeSort('relevance')"
+          i18n
+        >
+          Relevance
+        </button>
+        <button
+          type="button"
+          class="search__sort-option"
+          [class.search__sort-option--active]="activeSort() === 'newest'"
+          [attr.aria-pressed]="activeSort() === 'newest'"
+          (click)="changeSort('newest')"
+          i18n
+        >
+          Newest
+        </button>
+      </div>
+    </div>
+
+    <div class="search__list">
+      @for (video of videos(); track video.id) {
+        <app-video-row [video]="video" />
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <app-pagination
+        class="search__pagination"
+        [currentPage]="currentPage()"
+        [totalPages]="totalPages()"
+        (pageChange)="goToPage($event)"
+      />
+    }
+  }
+</main>

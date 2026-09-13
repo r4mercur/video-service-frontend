@@ -19,7 +19,32 @@
       }
     </nav>
   </div>
+  <!-- From md upward: inline field. Below md: icon link to the search page (header width, see scss). -->
+  <app-search-box
+    class="header__search"
+    inputId="header-search"
+    [query]="searchQuery()"
+    (searched)="search($event)"
+  />
   <div class="header__end">
+    <a
+      class="header__search-link"
+      routerLink="/catalog/search"
+      routerLinkActive="header__search-link--active"
+      aria-label="Search videos"
+      i18n-aria-label
+    >
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <path
+          d="m20 20-3.5-3.5"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
+      </svg>
+    </a>
     @if (isAuthenticated()) {
       <nav class="header__nav" aria-label="Account">
         <a routerLink="/upload" routerLinkActive="header__link--active" ariaCurrentWhenActive="page"
