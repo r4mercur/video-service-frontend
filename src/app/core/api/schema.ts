@@ -507,7 +507,7 @@ export interface components {
             /** @enum {string} */
             visibility?: "PUBLIC" | "PRIVATE";
             /** @enum {string} */
-            status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
+            status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED" | "DELETING";
             /** Format: date-time */
             publishedAt?: string;
             /** Format: date-time */
@@ -614,7 +614,7 @@ export interface components {
             videoSlug?: string;
             videoTitle?: string;
             /** @enum {string} */
-            videoStatus?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
+            videoStatus?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED" | "DELETING";
             reporterUsername?: string;
             reason?: string;
             detail?: string;
@@ -685,7 +685,7 @@ export interface components {
         };
         VideoStatusResponse: {
             /** @enum {string} */
-            status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED";
+            status?: "UPLOADING" | "PROCESSING" | "READY" | "FAILED" | "BLOCKED" | "DELETING";
             /** @enum {string} */
             visibilityTarget?: "PUBLIC" | "PRIVATE";
             lastError?: string;

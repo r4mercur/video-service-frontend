@@ -1,4 +1,5 @@
-export type VideoLifecycleStatus = 'UPLOADING' | 'PROCESSING' | 'READY' | 'FAILED' | 'BLOCKED';
+export type VideoLifecycleStatus =
+  'UPLOADING' | 'PROCESSING' | 'READY' | 'FAILED' | 'BLOCKED' | 'DELETING';
 
 export function videoStatusTone(
   status: VideoLifecycleStatus | undefined,
