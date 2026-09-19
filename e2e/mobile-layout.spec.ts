@@ -26,7 +26,9 @@ async function login(page: Page): Promise<void> {
   await page.goto('/auth');
   await page.getByLabel('Email or username').fill(TEST_USER.identifier);
   await page.getByLabel('Password').fill(TEST_USER.password);
-  await page.locator('button[type="submit"]').click();
+  // Scoped to app-button: "Log in" is also the tab button, and the header search box has its own
+  // submit button since 2026-09-13 - a bare button[type=submit] matches two elements.
+  await page.locator('app-button').getByRole('button', { name: 'Log in' }).click();
   await expect(page).toHaveURL(/\/catalog/);
 }
 
