@@ -7,6 +7,9 @@ import { AuthService } from '@core/auth/auth';
 import { CategoriesService } from '@core/catalog/categories';
 import { isApiProblem } from '@core/http/api-problem';
 import { WatchProgressService } from '@core/watch-progress/watch-progress';
+import { ReportsApi } from '@features/admin/reports-api';
+import { Avatar } from '@shared/avatar/avatar';
+import { ConfirmDialog } from '@shared/confirm-dialog/confirm-dialog';
 import { DurationPipe } from '@shared/pipes/duration';
 import { ReportDialog, ReportPayload } from '@shared/report-dialog/report-dialog';
 import { VideoReportApi } from '../video-report-api';
@@ -36,7 +39,15 @@ const UNAVAILABLE_STATUS_MESSAGE: Record<string, string> = {
 
 @Component({
   selector: 'app-video-detail',
-  imports: [DatePipe, DurationPipe, PlayerFrame, RecommendedRail, ReportDialog],
+  imports: [
+    Avatar,
+    ConfirmDialog,
+    DatePipe,
+    DurationPipe,
+    PlayerFrame,
+    RecommendedRail,
+    ReportDialog,
+  ],
   templateUrl: './detail.html',
   styleUrl: './detail.scss',
 })
@@ -45,6 +56,7 @@ export class VideoDetail {
   private readonly watchProgress = inject(WatchProgressService);
   private readonly auth = inject(AuthService);
   private readonly reportApi = inject(VideoReportApi);
+  private readonly reportsApi = inject(ReportsApi);
   private readonly adultContentPreference = inject(AdultContentPreferenceService);
 
   readonly slug = input.required<string>();
@@ -106,6 +118,45 @@ export class VideoDetail {
   protected readonly reportDialogOpen = signal(false);
   protected readonly reportPending = signal(false);
   protected readonly reportError = signal<string | null>(null);
+
+  protected readonly isAdmin = this.auth.isAdmin;
+  protected readonly canRemoveOwnerAvatar = computed(
+    () => this.isAdmin() && !!this.video.value()?.ownerAvatarUrl,
+  );
+  protected readonly removeAvatarDialogOpen = signal(false);
+  protected readonly removeAvatarError = signal<string | null>(null);
+  protected readonly removeAvatarDescription = computed(
+    () =>
+      $localize`The profile photo of ${this.video.value()?.ownerUsername ?? ''}:owner: will be deleted. The reason is recorded in the audit log.`,
+  );
+
+  protected openRemoveAvatarDialog(): void {
+    this.removeAvatarError.set(null);
+    this.removeAvatarDialogOpen.set(true);
+  }
+
+  protected closeRemoveAvatarDialog(): void {
+    this.removeAvatarDialogOpen.set(false);
+  }
+
+  protected async removeOwnerAvatar(reason: string): Promise<void> {
+    const owner = this.video.value()?.ownerUsername;
+    this.removeAvatarDialogOpen.set(false);
+    if (!owner) {
+      return;
+    }
+    try {
+      await this.reportsApi.removeUserAvatar(owner, reason);
+      // Reload rather than patching locally: ownerAvatarUrl is derived server-side.
+      this.video.reload();
+    } catch (error) {
+      this.removeAvatarError.set(
+        isApiProblem(error)
+          ? (error.detail ?? error.title)
+          : $localize`Could not remove the profile photo. Please try again.`,
+      );
+    }
+  }
 
   protected openReportDialog(): void {
     this.reportError.set(null);

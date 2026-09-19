@@ -3,15 +3,47 @@
 }
 
 .avatar {
+  position: relative;
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
+  overflow: hidden;
   background: linear-gradient(150deg, #3a3358, #26213f);
   color: #cdc7e8;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: 500;
+
+  &[data-size='md'] {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  &[data-size='lg'] {
+    width: 6rem;
+    height: 6rem;
+    font-size: var(--text-2xl);
+  }
+}
+
+// A centered cover is exactly the square the backend crops out of the upload, so a local
+// preview rendered through this component shows what will actually be stored.
+.avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// The initials are decorative; screen readers get the full name instead.
+.avatar__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

@@ -55,7 +55,21 @@
         >
       </nav>
       <button type="button" class="header__signout" (click)="signOut()">Sign out</button>
-      <app-avatar [initials]="initials()" />
+      <button
+        #avatarButton
+        type="button"
+        class="header__avatar"
+        aria-haspopup="dialog"
+        aria-label="Change profile photo"
+        i18n-aria-label
+        (click)="openPhotoDialog()"
+      >
+        <app-avatar [name]="username()" [src]="avatarUrl()" />
+      </button>
+      <!-- Loaded on first use only: the dialog is rarely opened and must not grow the initial bundle. -->
+      @defer (on interaction(avatarButton); prefetch on hover(avatarButton)) {
+        <app-profile-photo-dialog [open]="photoDialogOpen()" (closed)="closePhotoDialog()" />
+      }
     } @else {
       <a class="header__signout" routerLink="/auth">Log in</a>
     }

@@ -25,7 +25,10 @@
         <h1 class="detail__title">{{ data.title }}</h1>
         <div class="detail__meta">
           @if (data.ownerUsername; as owner) {
-            <span>{{ owner }}</span>
+            <span class="detail__owner">
+              <app-avatar [name]="owner" [src]="data.ownerAvatarUrl" size="md" />
+              <span>{{ owner }}</span>
+            </span>
             <span class="detail__dot" aria-hidden="true"></span>
           }
           @if (data.publishedAt; as publishedAt) {
@@ -85,6 +88,19 @@
             <span>{{ owner }}</span>
           </div>
         }
+        @if (canRemoveOwnerAvatar()) {
+          <button
+            type="button"
+            class="detail__remove-avatar"
+            (click)="openRemoveAvatarDialog()"
+            i18n
+          >
+            Remove profile photo
+          </button>
+        }
+        @if (removeAvatarError(); as message) {
+          <p class="detail__remove-avatar-error" role="alert">{{ message }}</p>
+        }
       </aside>
     </div>
 
@@ -102,5 +118,19 @@
       (submitted)="submitReport($event)"
       (cancelled)="closeReportDialog()"
     />
+
+    @if (isAdmin()) {
+      <app-confirm-dialog
+        [open]="removeAvatarDialogOpen()"
+        title="Remove profile photo"
+        i18n-title
+        [description]="removeAvatarDescription()"
+        confirmLabel="Remove photo"
+        i18n-confirmLabel
+        [danger]="true"
+        (confirmed)="removeOwnerAvatar($event)"
+        (cancelled)="closeRemoveAvatarDialog()"
+      />
+    }
   }
 </main>

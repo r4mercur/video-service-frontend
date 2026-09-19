@@ -1,0 +1,87 @@
+<!-- eslint-disable-next-line @angular-eslint/template/click-events-have-key-events, @angular-eslint/template/interactive-supports-focus -- Backdrop click to close; Escape (native `cancel` event) is the keyboard equivalent. -->
+<dialog
+  #dialogEl
+  class="profile-photo-dialog"
+  aria-labelledby="profile-photo-dialog-title"
+  (cancel)="$event.preventDefault(); close()"
+  (click)="onBackdropClick($event)"
+>
+  <div class="profile-photo-dialog__panel">
+    <h2 id="profile-photo-dialog-title" class="profile-photo-dialog__title" i18n>Profile photo</h2>
+
+    <input
+      #fileInput
+      type="file"
+      class="profile-photo-dialog__input"
+      accept="image/jpeg,image/png,image/webp,image/gif"
+      aria-label="Profile photo image"
+      i18n-aria-label
+      (change)="onFileInputChange($event)"
+    />
+
+    <div
+      class="profile-photo-dialog__preview"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event)"
+    >
+      <app-avatar [name]="username()" [src]="displayedUrl()" size="lg" />
+      <p class="profile-photo-dialog__hint" i18n>
+        JPEG, PNG, WebP or GIF, up to 5 MB. Photos are cropped to a square from the center.
+      </p>
+    </div>
+
+    <div class="profile-photo-dialog__choose-row">
+      <button
+        type="button"
+        class="profile-photo-dialog__choose"
+        [disabled]="pending()"
+        (click)="openPicker()"
+      >
+        @if (selectedFile()) {
+          <ng-container i18n>Choose another photo</ng-container>
+        } @else {
+          <ng-container i18n>Choose photo</ng-container>
+        }
+      </button>
+      @if (currentAvatarUrl() && !selectedFile()) {
+        <button
+          type="button"
+          class="profile-photo-dialog__remove"
+          [disabled]="pending()"
+          (click)="remove()"
+          i18n
+        >
+          Remove photo
+        </button>
+      }
+    </div>
+
+    @if (error(); as message) {
+      <p class="profile-photo-dialog__error" role="alert">{{ message }}</p>
+    }
+
+    <div class="profile-photo-dialog__actions">
+      <button
+        type="button"
+        class="profile-photo-dialog__cancel"
+        [disabled]="pending()"
+        (click)="close()"
+        i18n
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="profile-photo-dialog__save"
+        [disabled]="!selectedFile() || pending()"
+        (click)="save()"
+      >
+        @if (pending()) {
+          <ng-container i18n>Saving…</ng-container>
+        } @else {
+          <ng-container i18n>Save</ng-container>
+        }
+      </button>
+    </div>
+  </div>
+</dialog>
