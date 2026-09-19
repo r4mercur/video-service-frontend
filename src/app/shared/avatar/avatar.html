@@ -1,1 +1,8 @@
-<span class="avatar">{{ initials() }}</span>
+<span class="avatar" [attr.data-size]="size()">
+  @if (imageSrc(); as url) {
+    <img class="avatar__image" [src]="url" [alt]="name()" (error)="onImageError()" />
+  } @else {
+    <span aria-hidden="true">{{ initials() }}</span>
+    <span class="avatar__label">{{ name() }}</span>
+  }
+</span>

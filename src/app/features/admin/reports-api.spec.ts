@@ -26,6 +26,15 @@ describe('ReportsApi', () => {
     await promise;
   });
 
+  it('removeUserAvatar posts the reason to the username-keyed admin endpoint', async () => {
+    const promise = api.removeUserAvatar('some user', 'offensive image');
+    const req = httpMock.expectOne('/api/admin/users/some%20user/avatar/remove');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ reason: 'offensive image' });
+    req.flush(null);
+    await promise;
+  });
+
   it('dismiss posts the reason to the dismiss endpoint', async () => {
     const promise = api.dismiss(7, 'no violation found');
     const req = httpMock.expectOne('/api/admin/reports/7/dismiss');

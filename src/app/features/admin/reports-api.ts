@@ -34,6 +34,14 @@ export class ReportsApi {
     return firstValueFrom(this.http.post<void>(`/api/admin/videos/${videoId}/unblock`, body));
   }
 
+  /** Moderation action like block/unblock: the reason is mandatory and ends up in the audit log. */
+  removeUserAvatar(username: string, reason: string): Promise<void> {
+    const body: ModerationActionRequest = { reason };
+    return firstValueFrom(
+      this.http.post<void>(`/api/admin/users/${encodeURIComponent(username)}/avatar/remove`, body),
+    );
+  }
+
   deleteVideo(videoId: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`/api/videos/${videoId}`));
   }

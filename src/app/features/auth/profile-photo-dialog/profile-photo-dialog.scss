@@ -1,0 +1,129 @@
+:host {
+  display: contents;
+}
+
+.profile-photo-dialog {
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--color-text-primary);
+  max-width: 26rem;
+  width: calc(100vw - var(--space-8));
+
+  &::backdrop {
+    background: rgb(0 0 0 / 60%);
+  }
+}
+
+.profile-photo-dialog__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.profile-photo-dialog__title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-xl);
+  color: var(--color-text-heading);
+}
+
+.profile-photo-dialog__input {
+  display: none;
+}
+
+.profile-photo-dialog__preview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.profile-photo-dialog__hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.profile-photo-dialog__choose-row,
+.profile-photo-dialog__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.profile-photo-dialog__actions {
+  justify-content: flex-end;
+  margin-top: var(--space-2);
+}
+
+.profile-photo-dialog__error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}
+
+.profile-photo-dialog__choose,
+.profile-photo-dialog__remove,
+.profile-photo-dialog__cancel,
+.profile-photo-dialog__save {
+  font-family: var(--font-body);
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.profile-photo-dialog__choose,
+.profile-photo-dialog__remove {
+  font-size: var(--text-sm);
+  padding: 0.5625rem 1rem;
+}
+
+.profile-photo-dialog__choose {
+  color: var(--color-accent-text);
+  background: var(--color-overlay-medium);
+  border: 1px solid var(--color-overlay-strong);
+}
+
+.profile-photo-dialog__remove {
+  color: var(--color-danger-text);
+  background: transparent;
+  border: none;
+}
+
+.profile-photo-dialog__cancel,
+.profile-photo-dialog__save {
+  font-size: var(--text-base);
+  padding: 0.75rem 1.375rem;
+  border-radius: var(--radius-lg);
+  border: none;
+}
+
+.profile-photo-dialog__cancel {
+  background: transparent;
+  color: var(--color-text-secondary);
+
+  &:hover:not(:disabled) {
+    color: var(--color-text-primary);
+  }
+}
+
+.profile-photo-dialog__save {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}

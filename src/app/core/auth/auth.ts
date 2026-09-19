@@ -28,6 +28,14 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.accessToken() !== null);
   readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
 
+  /**
+   * For endpoints that return the updated user themselves (e.g. `PUT /api/me/avatar`), so the
+   * header reflects the change without another `/api/me` round trip.
+   */
+  updateCurrentUser(user: UserResponse): void {
+    this.user.set(user);
+  }
+
   /** Token is only for the HTTP interceptor pair — not meant to be consumed by feature code. */
   getAccessToken(): string | null {
     return this.accessToken();

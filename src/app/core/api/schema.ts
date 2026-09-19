@@ -20,6 +20,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/me/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["setAvatar"];
+        post?: never;
+        delete: operations["removeAvatar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/videos": {
         parameters: {
             query?: never;
@@ -228,6 +244,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/users/{username}/avatar/remove": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["removeUserAvatar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/reports/{id}/uphold": {
         parameters: {
             query?: never;
@@ -388,14 +420,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/search/videos": {
+    "/api/users/{username}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["search"];
+        get: operations["publicProfile"];
         put?: never;
         post?: never;
         delete?: never;
@@ -412,6 +444,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["channel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/search/videos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["search"];
         put?: never;
         post?: never;
         delete?: never;
@@ -504,6 +552,7 @@ export interface components {
             height?: number;
             categorySlug?: string;
             ownerUsername?: string;
+            ownerAvatarUrl?: string;
             /** @enum {string} */
             visibility?: "PUBLIC" | "PRIVATE";
             /** @enum {string} */
@@ -513,6 +562,19 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
             ageRestricted?: boolean;
+        };
+        UserResponse: {
+            /** Format: uuid */
+            id?: string;
+            email?: string;
+            username?: string;
+            /** @enum {string} */
+            role?: "USER" | "ADMIN";
+            /** @enum {string} */
+            status?: "ACTIVE" | "SUSPENDED";
+            /** Format: date-time */
+            createdAt?: string;
+            avatarUrl?: string;
         };
         InitiateUploadRequest: {
             title: string;
@@ -582,18 +644,6 @@ export interface components {
             username: string;
             password: string;
         };
-        UserResponse: {
-            /** Format: uuid */
-            id?: string;
-            email?: string;
-            username?: string;
-            /** @enum {string} */
-            role?: "USER" | "ADMIN";
-            /** @enum {string} */
-            status?: "ACTIVE" | "SUSPENDED";
-            /** Format: date-time */
-            createdAt?: string;
-        };
         AccessTokenResponse: {
             accessToken?: string;
             /** Format: int64 */
@@ -654,17 +704,6 @@ export interface components {
             active?: boolean;
             ageRestricted?: boolean;
         };
-        PageResponseVideoSummaryDto: {
-            items?: components["schemas"]["VideoSummaryDto"][];
-            /** Format: int32 */
-            page?: number;
-            /** Format: int32 */
-            size?: number;
-            /** Format: int64 */
-            totalItems?: number;
-            /** Format: int32 */
-            totalPages?: number;
-        };
         CursorPageVideoSummaryDto: {
             items?: components["schemas"]["VideoSummaryDto"][];
             nextCursor?: string;
@@ -695,6 +734,21 @@ export interface components {
         };
         ManifestResponse: {
             playlistUrl?: string;
+        };
+        PublicUserResponse: {
+            username?: string;
+            avatarUrl?: string;
+        };
+        PageResponseVideoSummaryDto: {
+            items?: components["schemas"]["VideoSummaryDto"][];
+            /** Format: int32 */
+            page?: number;
+            /** Format: int32 */
+            size?: number;
+            /** Format: int64 */
+            totalItems?: number;
+            /** Format: int32 */
+            totalPages?: number;
         };
         CursorPageVideoDetailDto: {
             items?: components["schemas"]["VideoDetailDto"][];
@@ -769,6 +823,53 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["VideoDetailDto"];
+                };
+            };
+        };
+    };
+    setAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
+                };
+            };
+        };
+    };
+    removeAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserResponse"];
                 };
             };
         };
@@ -1095,6 +1196,30 @@ export interface operations {
             };
         };
     };
+    removeUserAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                username: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModerationActionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     upholdReport: {
         parameters: {
             query?: never;
@@ -1374,16 +1499,13 @@ export interface operations {
             };
         };
     };
-    search: {
+    publicProfile: {
         parameters: {
-            query?: {
-                q?: string;
-                sort?: string;
-                page?: number;
-                includeAgeRestricted?: boolean;
-            };
+            query?: never;
             header?: never;
-            path?: never;
+            path: {
+                username: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -1394,7 +1516,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["PageResponseVideoSummaryDto"];
+                    "*/*": components["schemas"]["PublicUserResponse"];
                 };
             };
         };
@@ -1421,6 +1543,31 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CursorPageVideoSummaryDto"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query?: {
+                q?: string;
+                sort?: string;
+                page?: number;
+                includeAgeRestricted?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PageResponseVideoSummaryDto"];
                 };
             };
         };

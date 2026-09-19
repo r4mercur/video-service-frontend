@@ -160,3 +160,37 @@
     color: var(--color-text-primary);
   }
 }
+
+.detail__owner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+// Admin-only moderation action; deliberately quiet so it doesn't compete with the details.
+.detail__remove-avatar {
+  align-self: flex-start;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+.detail__remove-avatar-error {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--color-danger-text);
+}

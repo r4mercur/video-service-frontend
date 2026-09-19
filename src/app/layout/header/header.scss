@@ -145,3 +145,19 @@
     outline-offset: 2px;
   }
 }
+
+// Opens the profile photo dialog. Same footprint as the plain avatar it replaced, so the
+// narrow-viewport header budget (CLAUDE.md §12, 2026-09-01) is unchanged.
+.header__avatar {
+  display: inline-flex;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent-text);
+    outline-offset: 2px;
+  }
+}
