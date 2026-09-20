@@ -108,3 +108,58 @@ test.describe('No horizontal page overflow on a narrow phone viewport', () => {
     await expectNoHorizontalOverflow(page);
   });
 });
+
+/**
+ * The wordmark is hidden below the `sm` breakpoint (480px), so it only becomes an overflow factor
+ * from 480px upwards. Added with the 2026-09-20 rebrand: "Video Platform" is noticeably wider than
+ * the previous wordmark, and these are the narrowest viewports that actually render it.
+ */
+for (const width of [480, 560]) {
+  test.describe(`No horizontal page overflow at ${width}px (wordmark visible)`, () => {
+    test.use({ viewport: { width, height: 800 } });
+
+    test('catalog, signed out', async ({ page }) => {
+      await mockEmptyCatalogFeed(page);
+      await page.goto('/catalog');
+      await expect(page.getByText('Video Platform')).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+    });
+
+    test('catalog, signed in', async ({ page }) => {
+      await mockEmptyCatalogFeed(page);
+      await login(page);
+      await expect(page.getByText('Video Platform')).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Sign out' })).toBeVisible();
+      await expectNoHorizontalOverflow(page);
+    });
+  });
+}
+
+/**
+ * The header's nav links and the sign-out button collapse to icons below `md` (2026-09-20): the
+ * signed-in admin header does not fit 320-375px phones with text labels. Signed out here, because
+ * the switch is pure CSS and does not depend on the session -- the signed-in widths are covered by
+ * the overflow tests above.
+ */
+test.describe('Header links collapse to icons below md', () => {
+  test('icon only at 375px, but still named for assistive tech', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await mockEmptyCatalogFeed(page);
+    await page.goto('/catalog');
+
+    const browse = page.getByRole('link', { name: 'Browse' });
+    await expect(browse).toBeVisible();
+    await expect(browse.locator('.header__link-icon')).toBeVisible();
+    await expect(browse.locator('.header__link-label')).toBeHidden();
+  });
+
+  test('text label from 768px up', async ({ page }) => {
+    await page.setViewportSize({ width: 768, height: 800 });
+    await mockEmptyCatalogFeed(page);
+    await page.goto('/catalog');
+
+    const browse = page.getByRole('link', { name: 'Browse' });
+    await expect(browse.locator('.header__link-label')).toBeVisible();
+    await expect(browse.locator('.header__link-icon')).toBeHidden();
+  });
+});

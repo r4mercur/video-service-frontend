@@ -83,7 +83,9 @@ export class Search {
     effect(() => {
       const query = this.query();
       this.title.setTitle(
-        query ? $localize`${query}:query: – Search – sol-stream` : $localize`Search – sol-stream`,
+        query
+          ? $localize`${query}:query: – Search – Video Platform`
+          : $localize`Search – Video Platform`,
       );
     });
   }
